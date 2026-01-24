@@ -108,7 +108,18 @@ export class SocketService implements OnDestroy {
       return;
     }
 
-    const baseUrl = environment.apiUrl.replace('/api', '');
+    // Resolve socket base URL from environment. If the built `apiUrl` is missing,
+    // still points to localhost, or is the relative '/api', fall back to the
+    // deployed Render backend URL so sockets work in production preview builds.
+    let baseUrl = '';
+    try {
+      baseUrl = (environment.apiUrl || '').replace('/api', '');
+    } catch (e) {
+      baseUrl = '';
+    }
+    if (!baseUrl || baseUrl.includes('localhost') || baseUrl === '/api') {
+      baseUrl = 'https://smartitinery2-1.onrender.com';
+    }
     
     this.socket = io(baseUrl, {
       auth: { token },

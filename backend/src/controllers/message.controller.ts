@@ -15,22 +15,22 @@ export class MessageController {
         return;
       }
 
-      const [result] = await pool.query(
+      const result = await pool.query(
         `INSERT INTO messages (sender_id, receiver_id, message_type, subject, content, priority)
-         VALUES (?, NULL, 'broadcast', ?, ?, ?)`,
+         VALUES ($1, NULL, 'broadcast', $2, $3, $4) RETURNING id`,
         [adminId, subject, content, priority]
       );
 
-      const messageId = (result as any).insertId;
+      const messageId = result.rows[0].id;
 
-      const [travelers] = await pool.query(
+      const travelers = await pool.query(
         `SELECT id FROM users WHERE role = 'Traveler'`
       );
 
-      for (const traveler of travelers as any[]) {
+      for (const traveler of travelers.rows) {
         await pool.query(
           `INSERT INTO notifications (user_id, type, title, content, reference_id)
-           VALUES (?, 'broadcast', ?, ?, ?)`,
+           VALUES ($1, 'broadcast', $2, $3, $4)`,
           [traveler.id, subject, content.substring(0, 200), messageId]
         );
 
@@ -46,7 +46,7 @@ export class MessageController {
       res.status(201).json({
         message: 'Broadcast sent successfully',
         messageId,
-        recipientCount: (travelers as any[]).length
+        recipientCount: travelers.rows.length
       });
     } catch (error) {
       console.error('Send broadcast error:', error);
@@ -66,17 +66,17 @@ export class MessageController {
         return;
       }
 
-      const [result] = await pool.query(
+      const result = await pool.query(
         `INSERT INTO messages (sender_id, receiver_id, message_type, subject, content, priority)
-         VALUES (?, ?, 'direct', ?, ?, ?)`,
+         VALUES ($1, $2, 'direct', $3, $4, $5) RETURNING id`,
         [adminId, userId, subject, content, priority]
       );
 
-      const messageId = (result as any).insertId;
+      const messageId = result.rows[0].id;
 
       await pool.query(
         `INSERT INTO notifications (user_id, type, title, content, reference_id)
-         VALUES (?, 'message', ?, ?, ?)`,
+         VALUES ($1, 'message', $2, $3, $4)`,
         [userId, subject, content.substring(0, 200), messageId]
       );
 
@@ -110,28 +110,28 @@ export class MessageController {
         return;
       }
 
-      const [result] = await pool.query(
+      const result = await pool.query(
         `INSERT INTO messages (sender_id, receiver_id, message_type, subject, content, priority)
-         VALUES (?, NULL, 'support', ?, ?, ?)`,
+         VALUES ($1, NULL, 'support', $2, $3, $4) RETURNING id`,
         [userId, subject, content, priority]
       );
 
-      const messageId = (result as any).insertId;
+      const messageId = result.rows[0].id;
 
       await pool.query(
         `INSERT INTO notifications (user_id, type, title, content, reference_id)
-         VALUES (?, 'system', ?, ?, ?)`,
+         VALUES ($1, 'system', $2, $3, $4)`,
         [userId, 'Support Request Received', 'Your support request has been received. We will respond within 24 hours.', messageId]
       );
 
-      const [admins] = await pool.query(
+      const admins = await pool.query(
         `SELECT id FROM users WHERE role = 'Admin'`
       );
 
-      for (const admin of admins as any[]) {
+      for (const admin of admins.rows) {
         await pool.query(
           `INSERT INTO notifications (user_id, type, title, content, reference_id)
-           VALUES (?, 'message', ?, ?, ?)`,
+           VALUES ($1, 'message', $2, $3, $4)`,
           [admin.id, 'New Support Request from ' + userName, subject, messageId]
         );
 
@@ -167,46 +167,46 @@ export class MessageController {
         return;
       }
 
-      const [messages] = await pool.query(
-        `SELECT * FROM messages WHERE id = ?`,
+      const messages = await pool.query(
+        `SELECT * FROM messages WHERE id = $1`,
         [messageId]
       );
 
-      if ((messages as any[]).length === 0) {
+      if (messages.rows.length === 0) {
         res.status(404).json({ error: 'Message not found' });
         return;
       }
 
-      const originalMessage = (messages as any[])[0];
+      const originalMessage = messages.rows[0];
 
-      const [result] = await pool.query(
+      const result = await pool.query(
         `INSERT INTO messages (sender_id, receiver_id, message_type, subject, content, parent_id)
-         VALUES (?, ?, 'system', ?, ?, ?)`,
+         VALUES ($1, $2, 'system', $3, $4, $5) RETURNING id`,
         [adminId, originalMessage.sender_id, 'Re: ' + originalMessage.subject, content, messageId]
       );
 
       const newStatus = resolve ? 'resolved' : 'read';
       await pool.query(
-        `UPDATE messages SET status = ? WHERE id = ?`,
+        `UPDATE messages SET status = $1 WHERE id = $2`,
         [newStatus, messageId]
       );
 
       await pool.query(
         `INSERT INTO notifications (user_id, type, title, content, reference_id)
-         VALUES (?, 'support_reply', ?, ?, ?)`,
-        [originalMessage.sender_id, 'Support Reply from ' + adminName, content.substring(0, 200), (result as any).insertId]
+         VALUES ($1, 'support_reply', $2, $3, $4)`,
+        [originalMessage.sender_id, 'Support Reply from ' + adminName, content.substring(0, 200), result.rows[0].id]
       );
 
       socketService.sendToUser(originalMessage.sender_id, 'notification', {
         type: 'support_reply',
         title: 'Support Reply',
         content: 'Your support ticket has received a response.',
-        messageId: (result as any).insertId
+        messageId: result.rows[0].id
       });
 
       res.json({
         message: 'Reply sent successfully',
-        replyId: (result as any).insertId,
+        replyId: result.rows[0].id,
         status: newStatus
       });
     } catch (error) {
@@ -235,7 +235,7 @@ export class MessageController {
           LEFT JOIN users u ON m.sender_id = u.id
           WHERE m.message_type IN ('support', 'broadcast', 'direct')
           ORDER BY m.created_at DESC
-          LIMIT ? OFFSET ?
+          LIMIT $1 OFFSET $2
         `;
         countQuery = `SELECT COUNT(*) as total FROM messages WHERE message_type IN ('support', 'broadcast', 'direct')`;
       } else {
@@ -243,11 +243,11 @@ export class MessageController {
           SELECT m.*, u.name as sender_name, u.email as sender_email
           FROM messages m
           LEFT JOIN users u ON m.sender_id = u.id
-          WHERE (m.receiver_id = ? OR m.message_type = 'broadcast' OR m.sender_id = ?)
+          WHERE (m.receiver_id = $1 OR m.message_type = 'broadcast' OR m.sender_id = $2)
           ORDER BY m.created_at DESC
-          LIMIT ? OFFSET ?
+          LIMIT $3 OFFSET $4
         `;
-        countQuery = `SELECT COUNT(*) as total FROM messages WHERE (receiver_id = ? OR message_type = 'broadcast' OR sender_id = ?)`;
+        countQuery = `SELECT COUNT(*) as total FROM messages WHERE (receiver_id = $1 OR message_type = 'broadcast' OR sender_id = $2)`;
         params.push(userId, userId);
       }
 
@@ -255,13 +255,13 @@ export class MessageController {
         ? [parseInt(limit as string), offset]
         : [userId, userId, parseInt(limit as string), offset];
 
-      const [messages] = await pool.query(query, queryParams);
-      const [countResult] = await pool.query(countQuery, params);
+      const messages = await pool.query(query, queryParams);
+      const countResult = await pool.query(countQuery, params);
       
-      const total = (countResult as any[])[0].total;
+      const total = countResult.rows[0].total;
 
       res.json({
-        messages,
+        messages: messages.rows,
         pagination: {
           page: parseInt(page as string),
           limit: parseInt(limit as string),
@@ -281,22 +281,22 @@ export class MessageController {
       const userId = req.user?.id;
       const { unreadOnly = 'false' } = req.query;
 
-      let query = `SELECT * FROM notifications WHERE user_id = ?`;
+      let query = `SELECT * FROM notifications WHERE user_id = $1`;
       if (unreadOnly === 'true') {
         query += ' AND is_read = FALSE';
       }
       query += ' ORDER BY created_at DESC LIMIT 50';
 
-      const [notifications] = await pool.query(query, [userId]);
+      const notifications = await pool.query(query, [userId]);
 
-      const [countResult] = await pool.query(
-        `SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = FALSE`,
+      const countResult = await pool.query(
+        `SELECT COUNT(*) as count FROM notifications WHERE user_id = $1 AND is_read = FALSE`,
         [userId]
       );
 
       res.json({
-        notifications,
-        unreadCount: (countResult as any[])[0].count
+        notifications: notifications.rows,
+        unreadCount: countResult.rows[0].count
       });
     } catch (error) {
       console.error('Get notifications error:', error);
@@ -311,7 +311,7 @@ export class MessageController {
       const userId = req.user?.id;
 
       await pool.query(
-        `UPDATE messages SET status = 'read' WHERE id = ? AND (receiver_id = ? OR message_type = 'broadcast')`,
+        `UPDATE messages SET status = 'read' WHERE id = $1 AND (receiver_id = $2 OR message_type = 'broadcast')`,
         [messageId, userId]
       );
 
@@ -329,7 +329,7 @@ export class MessageController {
       const userId = req.user?.id;
 
       await pool.query(
-        `UPDATE notifications SET is_read = TRUE WHERE id = ? AND user_id = ?`,
+        `UPDATE notifications SET is_read = TRUE WHERE id = $1 AND user_id = $2`,
         [notificationId, userId]
       );
 
@@ -346,7 +346,7 @@ export class MessageController {
       const userId = req.user?.id;
 
       await pool.query(
-        `UPDATE notifications SET is_read = TRUE WHERE user_id = ?`,
+        `UPDATE notifications SET is_read = TRUE WHERE user_id = $1`,
         [userId]
       );
 
@@ -378,9 +378,9 @@ export class MessageController {
         ORDER BY CASE m.status WHEN 'pending' THEN 0 ELSE 1 END, m.created_at DESC
       `;
 
-      const [tickets] = await pool.query(query);
+      const ticketsRes = await pool.query(query);
 
-      const [stats] = await pool.query(`
+      const statsRes = await pool.query(`
         SELECT 
           COUNT(*) as total,
           SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
@@ -389,8 +389,8 @@ export class MessageController {
       `);
 
       res.json({
-        tickets,
-        stats: (stats as any[])[0]
+        tickets: ticketsRes.rows,
+        stats: statsRes.rows[0]
       });
     } catch (error) {
       console.error('Get support tickets error:', error);
@@ -403,20 +403,20 @@ export class MessageController {
     try {
       const { messageId } = req.params;
 
-      const [messages] = await pool.query(`
+      const messagesRes = await pool.query(`
         SELECT m.*, u.name as sender_name, u.email as sender_email, u.role as sender_role
         FROM messages m
         LEFT JOIN users u ON m.sender_id = u.id
-        WHERE m.id = ? OR m.parent_id = ?
+        WHERE m.id = $1 OR m.parent_id = $2
         ORDER BY m.created_at ASC
       `, [messageId, messageId]);
 
-      if ((messages as any[]).length === 0) {
+      if (messagesRes.rows.length === 0) {
         res.status(404).json({ error: 'Message not found' });
         return;
       }
 
-      res.json({ messages });
+      res.json({ messages: messagesRes.rows });
     } catch (error) {
       console.error('Get message thread error:', error);
       res.status(500).json({ error: 'Failed to fetch message thread' });
@@ -429,24 +429,24 @@ export class MessageController {
       const userId = req.user?.id;
       const userRole = req.user?.role;
 
-      const [notifResult] = await pool.query(
-        `SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = FALSE`,
+      const notifResult = await pool.query(
+        `SELECT COUNT(*) as count FROM notifications WHERE user_id = $1 AND is_read = FALSE`,
         [userId]
       );
-      const notificationCount = (notifResult as any[])[0].count;
+      const notificationCount = notifResult.rows[0].count;
 
       let messageCount = 0;
       if (userRole === 'Admin') {
-        const [msgResult] = await pool.query(
+        const msgResult = await pool.query(
           `SELECT COUNT(*) as count FROM messages WHERE message_type = 'support' AND status = 'pending'`
         );
-        messageCount = (msgResult as any[])[0].count;
+        messageCount = msgResult.rows[0].count;
       } else {
-        const [msgResult] = await pool.query(
-          `SELECT COUNT(*) as count FROM messages WHERE (receiver_id = ? OR message_type = 'broadcast') AND status = 'pending'`,
+        const msgResult = await pool.query(
+          `SELECT COUNT(*) as count FROM messages WHERE (receiver_id = $1 OR message_type = 'broadcast') AND status = 'pending'`,
           [userId]
         );
-        messageCount = (msgResult as any[])[0].count;
+        messageCount = msgResult.rows[0].count;
       }
 
       res.json({
@@ -467,7 +467,7 @@ export class MessageController {
       const userId = req.user?.id;
 
       await pool.query(
-        `DELETE FROM notifications WHERE id = ? AND user_id = ?`,
+        `DELETE FROM notifications WHERE id = $1 AND user_id = $2`,
         [notificationId, userId]
       );
 

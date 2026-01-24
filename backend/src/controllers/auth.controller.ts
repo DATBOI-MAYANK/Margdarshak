@@ -19,12 +19,14 @@ export class AuthController {
       const { name, email, password, role, contact_info } = req.body;
 
       // Check if user already exists
-      const [existingUsers] = await pool.query(
-        'SELECT id FROM users WHERE email = ?',
+      const result = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
         [email]
       );
 
-      if (Array.isArray(existingUsers) && existingUsers.length > 0) {
+      const existingUsers = result.rows;
+
+      if (existingUsers.length > 0) {
         res.status(400).json({ error: 'Email already registered' });
         return;
       }
@@ -33,12 +35,12 @@ export class AuthController {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Insert user
-      const [result] = await pool.query(
-        'INSERT INTO users (name, email, password, role, contact_info) VALUES (?, ?, ?, ?, ?)',
+      const insertResult = await pool.query(
+        'INSERT INTO users (name, email, password, role, contact_info) VALUES ($1, $2, $3, $4, $5) RETURNING id',
         [name, email, hashedPassword, role || 'Traveler', contact_info]
       );
 
-      const userId = (result as any).insertId;
+      const userId = insertResult.rows[0].id;
 
       // Generate token
       const token = jwt.sign(
@@ -75,12 +77,14 @@ export class AuthController {
       const { email, password } = req.body;
 
       // Find user
-      const [users] = await pool.query(
-        'SELECT * FROM users WHERE email = ?',
+      const result = await pool.query(
+        'SELECT * FROM users WHERE email = $1',
         [email]
       );
 
-      if (!Array.isArray(users) || users.length === 0) {
+      const users = result.rows;
+
+      if (users.length === 0) {
         res.status(401).json({ error: 'Invalid credentials' });
         return;
       }
@@ -131,12 +135,14 @@ export class AuthController {
         return;
       }
 
-      const [users] = await pool.query(
-        'SELECT id, name, email, role, contact_info, profile_picture, created_at FROM users WHERE id = ?',
+      const result = await pool.query(
+        'SELECT id, name, email, role, contact_info, profile_picture, created_at FROM users WHERE id = $1',
         [req.user.id]
       );
 
-      if (!Array.isArray(users) || users.length === 0) {
+      const users = result.rows;
+
+      if (users.length === 0) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
@@ -159,23 +165,25 @@ export class AuthController {
 
       // Check if email is being changed and if it's already taken
       if (email) {
-        const [existingUsers] = await pool.query(
-          'SELECT id FROM users WHERE email = ? AND id != ?',
+        const result = await pool.query(
+          'SELECT id FROM users WHERE email = $1 AND id != $2',
           [email, req.user.id]
         );
 
-        if (Array.isArray(existingUsers) && existingUsers.length > 0) {
+        const existingUsers = result.rows;
+
+        if (existingUsers.length > 0) {
           res.status(400).json({ error: 'Email already in use by another account' });
           return;
         }
       }
 
-      const [result] = await pool.query(
-        'UPDATE users SET name = ?, email = ?, contact_info = ? WHERE id = ?',
+      const updateResult = await pool.query(
+        'UPDATE users SET name = $1, email = $2, contact_info = $3 WHERE id = $4',
         [name, email, contact_info || null, req.user.id]
       );
 
-      if ((result as any).affectedRows === 0) {
+      if (updateResult.rowCount === 0) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
@@ -203,7 +211,7 @@ export class AuthController {
 
       // Update user's profile picture in database
       await pool.query(
-        'UPDATE users SET profile_picture = ? WHERE id = ?',
+        'UPDATE users SET profile_picture = $1 WHERE id = $2',
         [profilePicturePath, req.user.id]
       );
 
@@ -226,7 +234,7 @@ export class AuthController {
 
       // Set profile picture to null in database
       await pool.query(
-        'UPDATE users SET profile_picture = NULL WHERE id = ?',
+        'UPDATE users SET profile_picture = NULL WHERE id = $1',
         [req.user.id]
       );
 
@@ -257,12 +265,14 @@ export class AuthController {
       }
 
       // Get current user with password
-      const [users] = await pool.query(
-        'SELECT password FROM users WHERE id = ?',
+      const result = await pool.query(
+        'SELECT password FROM users WHERE id = $1',
         [req.user.id]
       );
 
-      if (!Array.isArray(users) || users.length === 0) {
+      const users = result.rows;
+
+      if (users.length === 0) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
@@ -281,7 +291,7 @@ export class AuthController {
 
       // Update password
       await pool.query(
-        'UPDATE users SET password = ? WHERE id = ?',
+        'UPDATE users SET password = $1 WHERE id = $2',
         [hashedPassword, req.user.id]
       );
 
@@ -294,11 +304,11 @@ export class AuthController {
 
   async getAllUsers(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const [users] = await pool.query(
+      const result = await pool.query(
         'SELECT id, name, email, role, status, contact_info, created_at FROM users ORDER BY created_at DESC'
       );
 
-      res.json({ users });
+      res.json({ users: result.rows });
     } catch (error) {
       console.error('Get users error:', error);
       res.status(500).json({ error: 'Failed to fetch users' });
@@ -322,12 +332,12 @@ export class AuthController {
         return;
       }
 
-      const [result] = await pool.query(
-        'UPDATE users SET role = ? WHERE id = ?',
+      const updateResult = await pool.query(
+        'UPDATE users SET role = $1 WHERE id = $2',
         [role, userId]
       );
 
-      if ((result as any).affectedRows === 0) {
+      if (updateResult.rowCount === 0) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
@@ -356,12 +366,12 @@ export class AuthController {
         return;
       }
 
-      const [result] = await pool.query(
-        'UPDATE users SET status = ? WHERE id = ?',
+      const updateResult = await pool.query(
+        'UPDATE users SET status = $1 WHERE id = $2',
         [status, userId]
       );
 
-      if ((result as any).affectedRows === 0) {
+      if (updateResult.rowCount === 0) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
@@ -385,20 +395,20 @@ export class AuthController {
       }
 
       // Check if user exists
-      const [users] = await pool.query('SELECT id, role FROM users WHERE id = ?', [userId]);
-      if (!Array.isArray(users) || users.length === 0) {
+      const result = await pool.query('SELECT id, role FROM users WHERE id = $1', [userId]);
+      if (result.rows.length === 0) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
 
       // Delete user's collaborations first
-      await pool.query('DELETE FROM itinerary_collaborators WHERE user_id = ? OR invited_by = ?', [userId, userId]);
+      await pool.query('DELETE FROM itinerary_collaborators WHERE user_id = $1 OR invited_by = $2', [userId, userId]);
 
       // Delete user's itineraries
-      await pool.query('DELETE FROM itineraries WHERE user_id = ?', [userId]);
+      await pool.query('DELETE FROM itineraries WHERE user_id = $1', [userId]);
 
       // Delete user
-      await pool.query('DELETE FROM users WHERE id = ?', [userId]);
+      await pool.query('DELETE FROM users WHERE id = $1', [userId]);
 
       res.json({ message: 'User and all associated data deleted successfully' });
     } catch (error) {
@@ -410,25 +420,25 @@ export class AuthController {
   // Admin: Get user statistics
   async getUserStats(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const [totalUsers] = await pool.query('SELECT COUNT(*) as count FROM users');
-      const [activeUsers] = await pool.query("SELECT COUNT(*) as count FROM users WHERE status = 'active'");
-      const [suspendedUsers] = await pool.query("SELECT COUNT(*) as count FROM users WHERE status = 'suspended'");
-      const [adminCount] = await pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'Admin'");
-      const [travelerCount] = await pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'Traveler'");
-      
+      const totalUsersResult = await pool.query('SELECT COUNT(*) as count FROM users');
+      const activeUsersResult = await pool.query("SELECT COUNT(*) as count FROM users WHERE status = 'active'");
+      const suspendedUsersResult = await pool.query("SELECT COUNT(*) as count FROM users WHERE status = 'suspended'");
+      const adminCountResult = await pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'Admin'");
+      const travelerCountResult = await pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'Traveler'");
+
       // Recent registrations (last 7 days)
-      const [recentUsers] = await pool.query(
+      const recentUsersResult = await pool.query(
         "SELECT COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
       );
 
       res.json({
         stats: {
-          total: (totalUsers as any)[0].count,
-          active: (activeUsers as any)[0].count,
-          suspended: (suspendedUsers as any)[0].count,
-          admins: (adminCount as any)[0].count,
-          travelers: (travelerCount as any)[0].count,
-          recentRegistrations: (recentUsers as any)[0].count
+          total: totalUsersResult.rows[0].count,
+          active: activeUsersResult.rows[0].count,
+          suspended: suspendedUsersResult.rows[0].count,
+          admins: adminCountResult.rows[0].count,
+          travelers: travelerCountResult.rows[0].count,
+          recentRegistrations: recentUsersResult.rows[0].count
         }
       });
     } catch (error) {

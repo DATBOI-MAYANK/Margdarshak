@@ -673,12 +673,12 @@ export class ItineraryController {
         ? activities 
         : await this.generateActivities(destination, start_date, end_date, preferences);
 
-      const [result] = await pool.query(
-        'INSERT INTO itineraries (user_id, destination, start_date, end_date, budget, activities, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      const insertResult = await pool.query(
+        'INSERT INTO itineraries (user_id, destination, start_date, end_date, budget, activities, notes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
         [req.user.id, destination, start_date, end_date, budget, JSON.stringify(finalActivities), notes || null]
       );
 
-      const itineraryId = (result as any).insertId;
+      const itineraryId = insertResult.rows[0]?.id;
 
       res.status(201).json({
         message: 'Itinerary created successfully',
@@ -714,47 +714,47 @@ export class ItineraryController {
       // Get own itineraries + shared itineraries (accepted collaborations)
       let query = `
         SELECT DISTINCT i.*, 
-          CASE WHEN i.user_id = ? THEN 'owner' ELSE 'collaborator' END as role,
+          CASE WHEN i.user_id = $1 THEN 'owner' ELSE 'collaborator' END as role,
           ic.permission as collab_permission,
           u.name as owner_name
         FROM itineraries i
-        LEFT JOIN itinerary_collaborators ic ON i.id = ic.itinerary_id AND ic.user_id = ? AND ic.status = 'accepted'
+        LEFT JOIN itinerary_collaborators ic ON i.id = ic.itinerary_id AND ic.user_id = $2 AND ic.status = 'accepted'
         LEFT JOIN users u ON i.user_id = u.id
-        WHERE (i.user_id = ? OR (ic.user_id = ? AND ic.status = 'accepted'))
+        WHERE (i.user_id = $3 OR (ic.user_id = $4 AND ic.status = 'accepted'))
       `;
       const params: any[] = [req.user.id, req.user.id, req.user.id, req.user.id];
 
       if (destination) {
-        query += ' AND i.destination LIKE ?';
+        query += ` AND i.destination LIKE $${params.length + 1}`;
         params.push(`%${destination}%`);
       }
 
       if (startDate) {
-        query += ' AND i.start_date >= ?';
+        query += ` AND i.start_date >= $${params.length + 1}`;
         params.push(startDate);
       }
 
       if (endDate) {
-        query += ' AND i.end_date <= ?';
+        query += ` AND i.end_date <= $${params.length + 1}`;
         params.push(endDate);
       }
 
       if (minBudget) {
-        query += ' AND i.budget >= ?';
+        query += ` AND i.budget >= $${params.length + 1}`;
         params.push(minBudget);
       }
 
       if (maxBudget) {
-        query += ' AND i.budget <= ?';
+        query += ` AND i.budget <= $${params.length + 1}`;
         params.push(maxBudget);
       }
 
       query += ' ORDER BY i.created_at DESC';
 
-      const [itineraries] = await pool.query(query, params);
+      const result = await pool.query(query, params);
 
       // Parse JSON fields only if they are strings
-      const parsedItineraries = (itineraries as any[]).map(itin => ({        ...itin,
+      const parsedItineraries = result.rows.map(itin => ({        ...itin,
         activities: typeof itin.activities === 'string' ? JSON.parse(itin.activities) : (itin.activities || []),
         media_paths: parseMediaPaths(itin.media_paths)
       }));
@@ -782,24 +782,24 @@ export class ItineraryController {
       const { id } = req.params;
 
       // Check if user is owner OR a collaborator with access
-      const [itineraries] = await pool.query(
-        `SELECT i.*, 
-          CASE WHEN i.user_id = ? THEN 'owner' ELSE 'collaborator' END as role,
+      const result = await pool.query(
+        `SELECT i.*,
+          CASE WHEN i.user_id = $1 THEN 'owner' ELSE 'collaborator' END as role,
           ic.permission as collab_permission,
           u.name as owner_name
         FROM itineraries i
-        LEFT JOIN itinerary_collaborators ic ON i.id = ic.itinerary_id AND ic.user_id = ? AND ic.status = 'accepted'
+        LEFT JOIN itinerary_collaborators ic ON i.id = ic.itinerary_id AND ic.user_id = $2 AND ic.status = 'accepted'
         LEFT JOIN users u ON i.user_id = u.id
-        WHERE i.id = ? AND (i.user_id = ? OR (ic.user_id = ? AND ic.status = 'accepted'))`,
+        WHERE i.id = $3 AND (i.user_id = $4 OR (ic.user_id = $5 AND ic.status = 'accepted'))`,
         [req.user.id, req.user.id, id, req.user.id, req.user.id]
       );
 
-      if (!Array.isArray(itineraries) || itineraries.length === 0) {
+      if (result.rows.length === 0) {
         res.status(404).json({ error: 'Itinerary not found' });
         return;
       }
 
-      const itinerary = itineraries[0] as any;
+      const itinerary = result.rows[0] as any;
       // Parse JSON fields only if they are strings
       itinerary.activities = typeof itinerary.activities === 'string' 
         ? JSON.parse(itinerary.activities) 
@@ -830,21 +830,21 @@ export class ItineraryController {
       const { destination, start_date, end_date, budget, activities, notes, media_paths } = req.body;
 
       // Check if itinerary exists and user is owner OR collaborator with edit permission
-      const [existing] = await pool.query(
+      const existingResult = await pool.query(
         `SELECT i.id, i.user_id,
-          CASE WHEN i.user_id = ? THEN 'edit' ELSE ic.permission END as effective_permission
+          CASE WHEN i.user_id = $1 THEN 'edit' ELSE ic.permission END as effective_permission
         FROM itineraries i
-        LEFT JOIN itinerary_collaborators ic ON i.id = ic.itinerary_id AND ic.user_id = ? AND ic.status = 'accepted'
-        WHERE i.id = ? AND (i.user_id = ? OR (ic.user_id = ? AND ic.status = 'accepted'))`,
+        LEFT JOIN itinerary_collaborators ic ON i.id = ic.itinerary_id AND ic.user_id = $2 AND ic.status = 'accepted'
+        WHERE i.id = $3 AND (i.user_id = $4 OR (ic.user_id = $5 AND ic.status = 'accepted'))`,
         [req.user.id, req.user.id, id, req.user.id, req.user.id]
       );
 
-      if (!Array.isArray(existing) || existing.length === 0) {
+      if (existingResult.rows.length === 0) {
         res.status(404).json({ error: 'Itinerary not found' });
         return;
       }
 
-      const record = existing[0] as any;
+      const record = existingResult.rows[0] as any;
       if (record.effective_permission !== 'edit') {
         res.status(403).json({ error: 'You only have view permission for this itinerary' });
         return;
@@ -862,7 +862,7 @@ export class ItineraryController {
       }
 
       await pool.query(
-        'UPDATE itineraries SET destination = ?, start_date = ?, end_date = ?, budget = ?, activities = ?, notes = ?, media_paths = ? WHERE id = ?',
+        'UPDATE itineraries SET destination = $1, start_date = $2, end_date = $3, budget = $4, activities = $5, notes = $6, media_paths = $7 WHERE id = $8',
         [destination, start_date, end_date, budget, JSON.stringify(activities), notes || '', mediaPathsJson, id]
       );
 
@@ -888,12 +888,12 @@ export class ItineraryController {
 
       const { id } = req.params;
 
-      const [result] = await pool.query(
-        'DELETE FROM itineraries WHERE id = ? AND user_id = ?',
+      const result = await pool.query(
+        'DELETE FROM itineraries WHERE id = $1 AND user_id = $2',
         [id, req.user.id]
       );
 
-      if ((result as any).affectedRows === 0) {
+      if (result.rowCount === 0) {
         res.status(404).json({ error: 'Itinerary not found' });
         return;
       }
@@ -908,18 +908,18 @@ export class ItineraryController {
   // Admin endpoint to view all itineraries
   async getAllItinerariesAdmin(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const [itineraries] = await pool.query(`
-        SELECT i.*, u.name as user_name, u.email as user_email 
-        FROM itineraries i 
-        JOIN users u ON i.user_id = u.id 
+      const adminResult = await pool.query(`
+        SELECT i.*, u.name as user_name, u.email as user_email
+        FROM itineraries i
+        JOIN users u ON i.user_id = u.id
         ORDER BY i.created_at DESC
       `);
 
       // Parse JSON fields only if they are strings
-      const parsedItineraries = (itineraries as any[]).map(itin => ({
+      const parsedItineraries = adminResult.rows.map(itin => ({
         ...itin,
-        activities: typeof itin.activities === 'string' 
-          ? JSON.parse(itin.activities) 
+        activities: typeof itin.activities === 'string'
+          ? JSON.parse(itin.activities)
           : (itin.activities || []),
         media_paths: parseMediaPaths(itin.media_paths)
       }));
@@ -942,17 +942,17 @@ export class ItineraryController {
       const { id } = req.params;
 
       // Get the itinerary
-      const [itineraries] = await pool.query(
-        'SELECT * FROM itineraries WHERE id = ? AND user_id = ?',
+      const itineraryResult = await pool.query(
+        'SELECT * FROM itineraries WHERE id = $1 AND user_id = $2',
         [id, req.user.id]
       );
 
-      if (!Array.isArray(itineraries) || itineraries.length === 0) {
+      if (itineraryResult.rows.length === 0) {
         res.status(404).json({ error: 'Itinerary not found' });
         return;
       }
 
-      const itinerary = itineraries[0] as any;
+      const itinerary = itineraryResult.rows[0] as any;
       
       console.log(`Regenerating activities for itinerary ${id} - ${itinerary.destination}`);
 
@@ -965,7 +965,7 @@ export class ItineraryController {
 
       // Update the itinerary with new activities
       await pool.query(
-        'UPDATE itineraries SET activities = ? WHERE id = ?',
+        'UPDATE itineraries SET activities = $1 WHERE id = $2',
         [JSON.stringify(newActivities), id]
       );
 
@@ -983,31 +983,31 @@ export class ItineraryController {
   async getAnalytics(req: AuthRequest, res: Response): Promise<void> {
     try {
       // Total itineraries
-      const [totalResult] = await pool.query('SELECT COUNT(*) as total FROM itineraries');
-      const total = (totalResult as any)[0].total;
+      const totalResult = await pool.query('SELECT COUNT(*) as total FROM itineraries');
+      const total = totalResult.rows[0].total;
 
       // Total travelers (exclude admins)
-      const [usersResult] = await pool.query("SELECT COUNT(*) as total FROM users WHERE role = 'Traveler'");
-      const totalUsers = (usersResult as any)[0].total;
+      const usersResult = await pool.query("SELECT COUNT(*) as total FROM users WHERE role = 'Traveler'");
+      const totalUsers = usersResult.rows[0].total;
 
       // Popular destinations
-      const [destinations] = await pool.query(`
-        SELECT destination, COUNT(*) as count 
-        FROM itineraries 
-        GROUP BY destination 
-        ORDER BY count DESC 
+      const destinationsResult = await pool.query(`
+        SELECT destination, COUNT(*) as count
+        FROM itineraries
+        GROUP BY destination
+        ORDER BY count DESC
         LIMIT 5
       `);
 
       // Average budget
-      const [budgetResult] = await pool.query('SELECT AVG(budget) as avgBudget FROM itineraries');
-      const avgBudget = (budgetResult as any)[0].avgBudget;
+      const budgetResult = await pool.query('SELECT AVG(budget) as avgBudget FROM itineraries');
+      const avgBudget = budgetResult.rows[0].avgbudget;
 
       res.json({
         analytics: {
           totalItineraries: total,
           totalUsers,
-          popularDestinations: destinations,
+          popularDestinations: destinationsResult.rows,
           averageBudget: avgBudget
         }
       });

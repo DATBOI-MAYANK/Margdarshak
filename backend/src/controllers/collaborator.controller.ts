@@ -32,18 +32,18 @@ export class CollaboratorController {
       }
 
       // Get itinerary owner info
-      const [itineraryInfo] = await pool.query(
+      const itineraryInfo = await pool.query(
         `SELECT i.user_id as owner_id, u.name as owner_name, u.email as owner_email 
          FROM itineraries i 
          JOIN users u ON i.user_id = u.id 
-         WHERE i.id = ?`,
+         WHERE i.id = $1`,
         [itineraryId]
       );
       
-      const owner = (itineraryInfo as any[])[0];
+      const owner = itineraryInfo.rows[0];
       const isOwner = owner?.owner_id === userId;
 
-      const [collaborators] = await pool.query(
+      const collaboratorsRes = await pool.query(
         `SELECT 
           ic.id,
           ic.itinerary_id,
@@ -59,13 +59,13 @@ export class CollaboratorController {
         FROM itinerary_collaborators ic
         JOIN users u ON ic.user_id = u.id
         JOIN users inv ON ic.invited_by = inv.id
-        WHERE ic.itinerary_id = ?
+        WHERE ic.itinerary_id = $1
         ORDER BY ic.status = 'accepted' DESC, ic.invited_at DESC`,
         [itineraryId]
       );
 
       res.json({ 
-        collaborators,
+        collaborators: collaboratorsRes.rows,
         owner: {
           id: owner?.owner_id,
           name: owner?.owner_name,
@@ -98,8 +98,8 @@ export class CollaboratorController {
       }
 
       // Find user by email
-      const [users] = await pool.query('SELECT id, email, name FROM users WHERE email = ?', [email]);
-      const user = (users as any[])[0];
+      const usersRes = await pool.query('SELECT id, email, name FROM users WHERE email = $1', [email]);
+      const user = usersRes.rows[0];
 
       if (!user) {
         res.status(404).json({ error: 'User not found. They must be registered to collaborate.' });
@@ -113,19 +113,19 @@ export class CollaboratorController {
       }
 
       // Check if already a collaborator
-      const [existing] = await pool.query(
-        'SELECT id FROM itinerary_collaborators WHERE itinerary_id = ? AND user_id = ?',
+      const existing = await pool.query(
+        'SELECT id FROM itinerary_collaborators WHERE itinerary_id = $1 AND user_id = $2',
         [itineraryId, user.id]
       );
 
-      if ((existing as any[]).length > 0) {
+      if (existing.rows.length > 0) {
         res.status(400).json({ error: 'User is already a collaborator' });
         return;
       }
 
       // Add collaborator
       await pool.query(
-        'INSERT INTO itinerary_collaborators (itinerary_id, user_id, permission, invited_by) VALUES (?, ?, ?, ?)',
+        'INSERT INTO itinerary_collaborators (itinerary_id, user_id, permission, invited_by) VALUES ($1, $2, $3, $4)',
         [itineraryId, user.id, permission, inviterId]
       );
 
@@ -166,7 +166,7 @@ export class CollaboratorController {
       }
 
       await pool.query(
-        'UPDATE itinerary_collaborators SET permission = ? WHERE id = ? AND itinerary_id = ?',
+        'UPDATE itinerary_collaborators SET permission = $1 WHERE id = $2 AND itinerary_id = $3',
         [permission, collaboratorId, itineraryId]
       );
 
@@ -190,11 +190,11 @@ export class CollaboratorController {
       const isOwner = await this.checkItineraryOwner(userId!, parseInt(itineraryId));
       
       // Get collaborator to check if it's the user themselves
-      const [collabs] = await pool.query(
-        'SELECT user_id FROM itinerary_collaborators WHERE id = ?',
+      const collabsRes = await pool.query(
+        'SELECT user_id FROM itinerary_collaborators WHERE id = $1',
         [collaboratorId]
       );
-      const collab = (collabs as any[])[0];
+      const collab = collabsRes.rows[0];
       
       const isSelf = collab && collab.user_id === userId;
 
@@ -204,7 +204,7 @@ export class CollaboratorController {
       }
 
       await pool.query(
-        'DELETE FROM itinerary_collaborators WHERE id = ? AND itinerary_id = ?',
+        'DELETE FROM itinerary_collaborators WHERE id = $1 AND itinerary_id = $2',
         [collaboratorId, itineraryId]
       );
 
@@ -223,7 +223,7 @@ export class CollaboratorController {
     try {
       const userId = req.user?.id;
 
-      const [itineraries] = await pool.query(
+      const itinerariesRes = await pool.query(
         `SELECT 
           i.*,
           ic.permission,
@@ -232,12 +232,12 @@ export class CollaboratorController {
         FROM itinerary_collaborators ic
         JOIN itineraries i ON ic.itinerary_id = i.id
         JOIN users u ON i.user_id = u.id
-        WHERE ic.user_id = ? AND ic.status = 'accepted'
+        WHERE ic.user_id = $1 AND ic.status = 'accepted'
         ORDER BY ic.invited_at DESC`,
         [userId]
       );
 
-      res.json({ itineraries });
+      res.json({ itineraries: itinerariesRes.rows });
     } catch (error) {
       console.error('Get shared itineraries error:', error);
       res.status(500).json({ error: 'Failed to fetch shared itineraries' });
@@ -252,7 +252,7 @@ export class CollaboratorController {
     try {
       const userId = req.user?.id;
 
-      const [invites] = await pool.query(
+      const invitesRes = await pool.query(
         `SELECT 
           ic.id,
           ic.itinerary_id,
@@ -267,12 +267,12 @@ export class CollaboratorController {
         FROM itinerary_collaborators ic
         JOIN itineraries i ON ic.itinerary_id = i.id
         JOIN users u ON ic.invited_by = u.id
-        WHERE ic.user_id = ? AND ic.status = 'pending'
+        WHERE ic.user_id = $1 AND ic.status = 'pending'
         ORDER BY ic.invited_at DESC`,
         [userId]
       );
 
-      res.json({ invites });
+      res.json({ invites: invitesRes.rows });
     } catch (error) {
       console.error('Get pending invites error:', error);
       res.status(500).json({ error: 'Failed to fetch pending invites' });
@@ -289,18 +289,18 @@ export class CollaboratorController {
       const userId = req.user?.id;
 
       // Verify this invite belongs to the user
-      const [invites] = await pool.query(
-        'SELECT id FROM itinerary_collaborators WHERE id = ? AND user_id = ? AND status = ?',
+      const invitesRes = await pool.query(
+        'SELECT id FROM itinerary_collaborators WHERE id = $1 AND user_id = $2 AND status = $3',
         [inviteId, userId, 'pending']
       );
 
-      if ((invites as any[]).length === 0) {
+      if (invitesRes.rows.length === 0) {
         res.status(404).json({ error: 'Invite not found or already processed' });
         return;
       }
 
       await pool.query(
-        'UPDATE itinerary_collaborators SET status = ? WHERE id = ?',
+        'UPDATE itinerary_collaborators SET status = $1 WHERE id = $2',
         ['accepted', inviteId]
       );
 
@@ -321,19 +321,19 @@ export class CollaboratorController {
       const userId = req.user?.id;
 
       // Verify this invite belongs to the user
-      const [invites] = await pool.query(
-        'SELECT id FROM itinerary_collaborators WHERE id = ? AND user_id = ? AND status = ?',
+      const invitesRes = await pool.query(
+        'SELECT id FROM itinerary_collaborators WHERE id = $1 AND user_id = $2 AND status = $3',
         [inviteId, userId, 'pending']
       );
 
-      if ((invites as any[]).length === 0) {
+      if (invitesRes.rows.length === 0) {
         res.status(404).json({ error: 'Invite not found or already processed' });
         return;
       }
 
       // Delete the invite instead of keeping rejected ones
       await pool.query(
-        'DELETE FROM itinerary_collaborators WHERE id = ?',
+        'DELETE FROM itinerary_collaborators WHERE id = $1',
         [inviteId]
       );
 
@@ -347,26 +347,26 @@ export class CollaboratorController {
   // Helper methods
   private async checkItineraryAccess(userId: number, itineraryId: number): Promise<boolean> {
     // Check owner
-    const [owner] = await pool.query(
-      'SELECT id FROM itineraries WHERE id = ? AND user_id = ?',
+    const ownerRes = await pool.query(
+      'SELECT id FROM itineraries WHERE id = $1 AND user_id = $2',
       [itineraryId, userId]
     );
-    if ((owner as any[]).length > 0) return true;
+    if (ownerRes.rows.length > 0) return true;
 
     // Check collaborator
-    const [collab] = await pool.query(
-      'SELECT id FROM itinerary_collaborators WHERE itinerary_id = ? AND user_id = ?',
+    const collabRes = await pool.query(
+      'SELECT id FROM itinerary_collaborators WHERE itinerary_id = $1 AND user_id = $2',
       [itineraryId, userId]
     );
-    return (collab as any[]).length > 0;
+    return collabRes.rows.length > 0;
   }
 
   private async checkItineraryOwner(userId: number, itineraryId: number): Promise<boolean> {
-    const [result] = await pool.query(
-      'SELECT id FROM itineraries WHERE id = ? AND user_id = ?',
+    const result = await pool.query(
+      'SELECT id FROM itineraries WHERE id = $1 AND user_id = $2',
       [itineraryId, userId]
     );
-    return (result as any[]).length > 0;
+    return result.rows.length > 0;
   }
 
   /**
@@ -377,7 +377,7 @@ export class CollaboratorController {
     try {
       console.log('getAllCollaborations called by user:', req.user?.id);
       
-      const [collaborations] = await pool.query(
+      const collaborationsRes = await pool.query(
         `SELECT 
           ic.id,
           ic.itinerary_id,
@@ -405,7 +405,7 @@ export class CollaboratorController {
       );
 
       // Get collaboration statistics
-      const [stats] = await pool.query(
+      const statsRes = await pool.query(
         `SELECT 
           COUNT(*) as total,
           SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
@@ -417,7 +417,7 @@ export class CollaboratorController {
       );
 
       // Get most collaborative users
-      const [topCollaborators] = await pool.query(
+      const topCollaboratorsRes = await pool.query(
         `SELECT 
           u.id,
           u.name,
@@ -432,7 +432,7 @@ export class CollaboratorController {
       );
 
       // Get most shared itineraries
-      const [mostShared] = await pool.query(
+      const mostSharedRes = await pool.query(
         `SELECT 
           i.id,
           i.destination,
@@ -448,14 +448,14 @@ export class CollaboratorController {
       );
 
       res.json({
-        collaborations,
-        stats: (stats as any[])[0],
-        topCollaborators,
-        mostShared
+        collaborations: collaborationsRes.rows,
+        stats: statsRes.rows[0],
+        topCollaborators: topCollaboratorsRes.rows,
+        mostShared: mostSharedRes.rows
       });
       console.log('Collaborations response sent:', { 
-        collaborationsCount: (collaborations as any[]).length,
-        stats: (stats as any[])[0]
+        collaborationsCount: collaborationsRes.rows.length,
+        stats: statsRes.rows[0]
       });
     } catch (error) {
       console.error('Get all collaborations error:', error);

@@ -62,11 +62,11 @@ class SocketService {
         socket.userEmail = decoded.email;
         
         // Get user name from database
-        const [users] = await pool.query(
-          'SELECT name FROM users WHERE id = ?',
+        const result = await pool.query(
+          'SELECT name FROM users WHERE id = $1',
           [decoded.id]
         );
-        const user = (users as any[])[0];
+        const user = result.rows[0];
         socket.userName = user?.name || decoded.email;
         
         next();
@@ -299,18 +299,18 @@ class SocketService {
   private async checkAccess(userId: number, itineraryId: number): Promise<boolean> {
     try {
       // Check if user is owner
-      const [ownerResult] = await pool.query(
-        'SELECT id FROM itineraries WHERE id = ? AND user_id = ?',
+      const ownerResult = await pool.query(
+        'SELECT id FROM itineraries WHERE id = $1 AND user_id = $2',
         [itineraryId, userId]
       );
-      if ((ownerResult as any[]).length > 0) return true;
+      if (ownerResult.rows.length > 0) return true;
 
       // Check if user is collaborator
-      const [collabResult] = await pool.query(
-        'SELECT id FROM itinerary_collaborators WHERE itinerary_id = ? AND user_id = ?',
+      const collabResult = await pool.query(
+        'SELECT id FROM itinerary_collaborators WHERE itinerary_id = $1 AND user_id = $2',
         [itineraryId, userId]
       );
-      if ((collabResult as any[]).length > 0) return true;
+      if (collabResult.rows.length > 0) return true;
 
       return false;
     } catch (error) {

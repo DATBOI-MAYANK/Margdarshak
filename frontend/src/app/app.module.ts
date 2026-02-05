@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -36,6 +36,7 @@ import { NgChartsModule } from 'ng2-charts';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AuthService } from './services/auth.service';
 
 // Components
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -119,6 +120,12 @@ import { DestinationMapComponent } from './shared/components/destination-map/des
     DestinationMapComponent
   ],
   providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (authService: AuthService) => () => authService.initAuthState(),
+      deps: [AuthService],
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

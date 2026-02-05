@@ -239,17 +239,17 @@ export class CollaborationChatController {
           COUNT(cc.id) as unread_count
         FROM itineraries i
         LEFT JOIN collaboration_chats cc ON cc.itinerary_id = i.id 
-          AND cc.user_id != $2 
+          AND cc.user_id != $1 
           AND cc.created_at > COALESCE(
-            (SELECT MAX(created_at) FROM collaboration_chats WHERE itinerary_id = i.id AND user_id = $3),
+            (SELECT MAX(created_at) FROM collaboration_chats WHERE itinerary_id = i.id AND user_id = $1),
             '1970-01-01'
           )
-        WHERE i.user_id = $4 OR i.id IN (
-          SELECT itinerary_id FROM itinerary_collaborators WHERE user_id = $5 AND status = 'accepted'
+        WHERE i.user_id = $1 OR i.id IN (
+          SELECT itinerary_id FROM itinerary_collaborators WHERE user_id = $1 AND status = 'accepted'
         )
         GROUP BY i.id, i.destination
         HAVING COUNT(cc.id) > 0
-      `, [userId, userId, userId, userId]);
+      `, [userId]);
       res.json({ unreadChats: countsRes.rows });
     } catch (error) {
       console.error('Get unread chat counts error:', error);

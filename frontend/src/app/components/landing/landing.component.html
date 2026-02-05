@@ -1,9 +1,18 @@
-<!-- Sticky Header -->
-<mat-toolbar class="landing-header" [class.header-visible]="headerVisible">
+<!-- Sticky Header (hidden on small screens via `showLandingHeader`) -->
+<mat-toolbar *ngIf="showLandingHeader" class="landing-header" [class.header-visible]="headerVisible">
   <!-- Logo -->
   <div class="logo">
     <img src="assets/logo/logo.png" alt="Voyage.IQ Logo" />
   </div>
+
+  <!-- Mobile Sign In (left) - visible only on small screens -->
+  <button
+    class="mobile-signin mobile-signin-left"
+    aria-label="Sign In (mobile)"
+    (click)="onAuthClick()"
+  >
+    Sign In
+  </button>
 
   <!-- Navigation -->
   <nav class="nav-links" [class.nav-visible]="headerVisible">
@@ -32,6 +41,14 @@
 
       <!-- Text Layer -->
       <span class="text-layer"> Sign In </span>
+    </button>
+    <!-- Mobile inline Sign In moved inside auth area so it lives in the navbar flow -->
+    <button
+      class="mobile-signin"
+      aria-label="Sign In (mobile)"
+      (click)="onAuthClick()"
+    >
+      Sign In
     </button>
   </div>
 </mat-toolbar>
@@ -228,19 +245,19 @@
 
       <!-- 🔁 duplicate once for seamless loop -->
       <div class="showcase-item">
-        <img src="assets/images/showcase/screen-1.png" />
+        <img src="assets/images/showcase/screen-1.png" alt="Dashboard overview" />
       </div>
       <div class="showcase-item">
-        <img src="assets/images/showcase/screen-2.png" />
+        <img src="assets/images/showcase/screen-2.png" alt="Itinerary planning" />
       </div>
       <div class="showcase-item">
-        <img src="assets/images/showcase/screen-3.png" />
+        <img src="assets/images/showcase/screen-3.png" alt="Map routing" />
       </div>
       <div class="showcase-item">
-        <img src="assets/images/showcase/screen-4.png" />
+        <img src="assets/images/showcase/screen-4.png" alt="Budget summary" />
       </div>
       <div class="showcase-item">
-        <img src="assets/images/showcase/screen-5.png" />
+        <img src="assets/images/showcase/screen-5.png" alt="Sharing and export" />
       </div>
     </div>
   </div>

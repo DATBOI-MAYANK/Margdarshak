@@ -20,12 +20,17 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // If user is already logged in, redirect to itineraries
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/itineraries']);
+      return;
+    }
+
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
-      role: ['Traveler', [Validators.required]],
       contact_info: ['']
     }, { validators: this.passwordMatchValidator });
   }
@@ -49,7 +54,9 @@ export class RegisterComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    const { confirmPassword, ...registerData } = this.registerForm.value;
+    const { confirmPassword, ...formData } = this.registerForm.value;
+    // Always register new users as Traveler - only admins can promote users
+    const registerData = { ...formData, role: 'Traveler' };
 
     this.authService.register(registerData).subscribe({
       next: (response) => {

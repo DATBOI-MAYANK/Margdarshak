@@ -6,6 +6,7 @@ body {
   max-width: 100%;
 }
 
+
 .landing-header {
   position: fixed;
   top: 0;
@@ -88,6 +89,11 @@ body {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+/* Mobile sign-in button hidden by default (desktop) */
+.mobile-signin {
+  display: none;
 }
 
 .spacer {
@@ -488,8 +494,8 @@ body {
   width: 100%;
 
   background: rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 
   border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
@@ -800,6 +806,421 @@ body {
   margin-bottom: 10px;
 }
 
+/* ==========================
+   Mobile Responsive Fixes (768px)
+   ========================== */
+@media (max-width: 768px) {
+  /* Header: compact for tablet */
+  .landing-header {
+    padding: 8px 16px;
+    height: 64px;
+  }
+
+  .logo img {
+    height: 44px;
+    max-width: 140px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .nav-indicator {
+    display: none;
+  }
+
+  /* Hero section */
+  .hero {
+    padding: 80px 16px 48px;
+    background-attachment: scroll;
+    min-height: 70vh;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .hero-text {
+    max-width: 100%;
+    padding: 0 16px;
+    text-align: left;
+  }
+
+  .headline-row {
+    grid-template-columns: 1fr;
+  }
+
+  .headline-muted {
+    font-size: 24px;
+    filter: none;
+  }
+
+  .headline-primary {
+    font-size: 48px;
+    line-height: 1.1;
+  }
+
+  .headline-contrast {
+    margin-left: 0;
+    grid-column: 1;
+    font-size: 18px;
+    margin-top: 8px;
+  }
+
+  .hero-cta {
+    margin: 24px 0 0 0;
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+
+  .hero-text p,
+  .hero-subtext {
+    font-size: 16px;
+    max-width: 100%;
+  }
+
+  /* Principles strip */
+  .principles-strip {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 24px 16px;
+  }
+
+  .principle-item {
+    justify-content: center;
+  }
+
+  /* Section titles */
+  .section-title {
+    margin-left: 16px;
+    font-size: 28px;
+    margin-bottom: 32px;
+  }
+
+  /* Features */
+  .features {
+    padding: 48px 16px;
+  }
+
+  .features-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .feature-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .feature-card img {
+    max-width: 100%;
+    max-height: none;
+    height: auto;
+  }
+
+  /* Roadmap / How It Works */
+  .how-roadmap {
+    padding: 48px 16px;
+  }
+
+  .how-roadmap .section-title {
+    position: static;
+    top: auto;
+    left: auto;
+  }
+
+  .roadmap-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+  }
+
+  .roadmap-image {
+    display: none;
+  }
+
+  .roadmap-step {
+    position: relative;
+    top: auto !important;
+    left: auto !important;
+    max-width: 100%;
+    width: 100%;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  /* Product showcase */
+  .product-showcase {
+    padding: 48px 0;
+  }
+
+  .showcase-item {
+    width: calc(100vw - 48px);
+    max-width: calc(100vw - 48px);
+  }
+
+  .showcase-track {
+    gap: 16px;
+    animation-duration: 60s;
+  }
+
+  /* About */
+  .about {
+    padding: 48px 16px;
+    margin-top: 0;
+  }
+
+  .about-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about-heading h2 {
+    font-size: 26px;
+  }
+
+  .about-content p {
+    font-size: 15px;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 40px 16px 24px;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+/* ==========================
+   Mobile Small (640px and below)
+   ========================== */
+@media (max-width: 640px) {
+  /* Hide landing-specific header on small screens */
+  .landing-header {
+    display: none !important;
+  }
+
+  /* Mobile Sign In button */
+  .mobile-signin {
+    display: inline-flex !important;
+    background: #191970 !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 10px 16px !important;
+    min-height: 44px;
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(25, 25, 112, 0.2) !important;
+  }
+
+  .auth-animate-btn {
+    display: none !important;
+  }
+
+  /* Hero adjustments for small screens */
+  .hero {
+    padding: 80px 16px 40px;
+    min-height: auto;
+    background-position: center;
+  }
+
+  .hero-bg {
+    background-size: cover;
+    background-attachment: scroll;
+  }
+
+  .hero-text {
+    max-width: 100%;
+    padding: 0 8px;
+    text-align: center;
+  }
+
+  .headline-row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .headline-muted {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .headline-primary {
+    font-size: 38px;
+    text-align: center;
+  }
+
+  .headline-contrast {
+    font-size: 16px;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .hero-cta {
+    margin: 20px auto 0;
+    display: inline-block;
+  }
+
+  .hero-text p,
+  .hero-subtext {
+    font-size: 15px;
+    text-align: center;
+  }
+
+  /* Principles */
+  .principles-strip {
+    padding: 20px 12px;
+    gap: 12px;
+  }
+
+  .principle-item h4 {
+    font-size: 14px;
+  }
+
+  .principle-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Section title */
+  .section-title {
+    margin-left: 12px;
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* Features */
+  .features {
+    padding: 40px 12px;
+  }
+
+  .features-cards {
+    gap: 16px;
+  }
+
+  .feature-glass h3 {
+    font-size: 16px;
+  }
+
+  .feature-glass p {
+    font-size: 13px;
+  }
+
+  /* How It Works */
+  .how-roadmap {
+    padding: 40px 12px;
+  }
+
+  .roadmap-step {
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+
+  .roadmap-step h4 {
+    font-size: 16px;
+  }
+
+  .roadmap-step p {
+    font-size: 12px;
+  }
+
+  /* Product showcase */
+  .product-showcase {
+    padding: 40px 0;
+  }
+
+  .showcase-item {
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+  }
+
+  .showcase-track {
+    gap: 12px;
+    padding: 20px 0;
+  }
+
+  .showcase-item img {
+    border-radius: 12px;
+  }
+
+  /* About */
+  .about {
+    padding: 40px 12px;
+  }
+
+  .about-heading h2 {
+    font-size: 24px;
+  }
+
+  .about-content p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 32px 12px 20px;
+  }
+
+  .footer-container {
+    gap: 24px;
+  }
+
+  .brand-logo img {
+    height: 40px;
+  }
+
+  .footer-desc {
+    font-size: 13px;
+  }
+
+  .footer-col h4 {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .footer-col a {
+    font-size: 13px;
+  }
+
+  .footer-bottom {
+    margin-top: 24px;
+    padding-top: 16px;
+    font-size: 12px;
+  }
+
+  .footer-meta {
+    font-size: 12px;
+  }
+
+  /* Prevent horizontal scroll */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+
 .footer-col a {
   font-size: 14px;
   color: #4b5563;
@@ -876,4 +1297,247 @@ body {
 .hero-cta:active {
   transform: translateY(-1px);
   filter: brightness(1.02);
+}
+
+/* ===================================
+   RESPONSIVE BREAKPOINTS - LARGE TABLET (1024px)
+   =================================== */
+@media (max-width: 1024px) {
+  .landing-header {
+    padding: 10px 40px;
+  }
+
+  .nav-links {
+    gap: 16px;
+  }
+
+  .nav-links a {
+    font-size: 15px;
+  }
+
+  .hero-text {
+    padding-left: 40px;
+    max-width: 480px;
+  }
+
+  .headline-muted {
+    font-size: 38px;
+  }
+
+  .headline-primary {
+    font-size: 72px;
+  }
+
+  .headline-contrast {
+    margin-left: 320px;
+    font-size: 24px;
+  }
+
+  .hero-cta {
+    margin-left: 80px;
+  }
+
+  .hero-text p {
+    font-size: 22px;
+  }
+
+  .section-title {
+    margin-left: 40px;
+    font-size: 40px;
+  }
+
+  .features-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    padding: 0 40px;
+  }
+
+  .feature-card img {
+    max-width: 100%;
+    max-height: 380px;
+  }
+
+  .principles-strip {
+    padding: 10px 40px;
+    gap: 32px;
+  }
+
+  .principle-item {
+    min-width: 180px;
+  }
+
+  .principle-item h4 {
+    font-size: 15px;
+  }
+
+  .about {
+    padding: 100px 40px;
+  }
+
+  .about-container {
+    gap: 40px;
+  }
+
+  .footer {
+    padding: 60px 40px 30px;
+  }
+
+  .footer-container {
+    gap: 40px;
+  }
+
+  /* Roadmap steps - adjust positioning for tablet */
+  .roadmap-step {
+    max-width: 180px;
+    padding: 10px 12px;
+  }
+
+  .roadmap-step h4 {
+    font-size: 15px;
+  }
+
+  .roadmap-step p {
+    font-size: 11px;
+  }
+
+  .showcase-item {
+    width: 500px;
+  }
+}
+
+/* ===================================
+   RESPONSIVE BREAKPOINTS - SMALL TABLET (900px)
+   =================================== */
+@media (max-width: 900px) {
+  .landing-header {
+    padding: 10px 24px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .nav-indicator {
+    display: none;
+  }
+
+  .hero-bg {
+    background-size: cover;
+    background-position: 70% center;
+  }
+
+  .hero-text {
+    padding-left: 24px;
+    max-width: 420px;
+  }
+
+  .headline-muted {
+    font-size: 32px;
+  }
+
+  .headline-primary {
+    font-size: 60px;
+  }
+
+  .headline-contrast {
+    margin-left: 0;
+    grid-column: 1 / -1;
+    font-size: 22px;
+    margin-top: 8px;
+  }
+
+  .headline-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-cta {
+    margin-left: 0;
+    margin-top: 24px;
+  }
+
+  .hero-text p {
+    font-size: 18px;
+    max-width: 380px;
+  }
+
+  .section-title {
+    margin-left: 24px;
+    font-size: 32px;
+  }
+
+  .features-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 24px;
+  }
+
+  .principles-strip {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .principle-item {
+    justify-content: flex-start;
+    min-width: auto;
+  }
+
+  /* Roadmap: switch to vertical flow */
+  .roadmap-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px;
+  }
+
+  .roadmap-image {
+    display: none;
+  }
+
+  .roadmap-step {
+    position: relative;
+    top: auto !important;
+    left: auto !important;
+    max-width: 100%;
+    width: 100%;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .about {
+    padding: 60px 24px;
+    margin-top: 0;
+  }
+
+  .about-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about-heading h2 {
+    font-size: 28px;
+  }
+
+  .footer {
+    padding: 48px 24px 24px;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .showcase-item {
+    width: 400px;
+  }
+
+  .showcase-track {
+    gap: 24px;
+  }
 }

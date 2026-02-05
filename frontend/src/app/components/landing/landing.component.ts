@@ -1,5 +1,5 @@
 import { Component, HostListener, ViewChild, ElementRef } from "@angular/core";
-
+import { CommonModule } from "@angular/common";
 import { Router, RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -8,7 +8,7 @@ import { MatIconModule } from "@angular/material/icon";
 @Component({
   selector: "app-landing",
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatToolbarModule, MatIconModule],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatToolbarModule, MatIconModule],
   templateUrl: "./landing.component.html",
   styleUrls: ["./landing.component.css"],
 })
@@ -22,6 +22,8 @@ export class LandingComponent {
 
   headerVisible = false;
   activeSection = "home";
+  // Show the landing header only on wider screens; hide on phones to avoid duplicate navbars
+  showLandingHeader = window.innerWidth > 640;
 
   @ViewChild("navIndicator")
   navIndicator!: ElementRef;
@@ -33,6 +35,20 @@ export class LandingComponent {
   animating = false;
 
   constructor(private router: Router) {}
+
+  /* ===============================
+     RESIZE HANDLING
+  =============================== */
+  @HostListener("window:resize")
+  onResize(): void {
+    // Update header visibility based on screen width
+    this.showLandingHeader = window.innerWidth > 640;
+    
+    // Re-position nav indicator if visible
+    if (this.headerVisible && this.showLandingHeader) {
+      this.moveNavIndicator();
+    }
+  }
 
   /* ===============================
      SCROLL HANDLING
@@ -136,6 +152,9 @@ export class LandingComponent {
   private moveNavIndicator(): void {
     if (!this.navIndicator || !this.headerVisible) return;
 
+    const headerEl = document.querySelector(".landing-header") as HTMLElement;
+    if (!headerEl) return;
+
     const activeLink = document.querySelector(
       `.nav-links a[data-section="${this.activeSection}"]`
     ) as HTMLElement;
@@ -143,9 +162,7 @@ export class LandingComponent {
     if (!activeLink) return;
 
     const linkRect = activeLink.getBoundingClientRect();
-    const headerRect = document
-      .querySelector(".landing-header")!
-      .getBoundingClientRect();
+    const headerRect = headerEl.getBoundingClientRect();
 
     const indicatorEl = this.navIndicator.nativeElement as HTMLElement;
 

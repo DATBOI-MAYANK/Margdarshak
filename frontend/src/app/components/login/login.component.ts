@@ -35,6 +35,11 @@ export class LoginComponent implements OnInit {
     if (reason === 'session_expired') {
       this.errorMessage = 'Your session has expired. Please log in again.';
     }
+
+    // If user is already logged in, redirect to return URL
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate([this.returnUrl]);
+    }
   }
 
   onSubmit(): void {

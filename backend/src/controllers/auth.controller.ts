@@ -26,7 +26,9 @@ export class AuthController {
         }
       }
 
-      const { name, email, password, role, contact_info } = body || {};
+      const { name, email, password, contact_info } = body || {};
+      // Always set role to Traveler for new registrations - only admins can promote users
+      const role = 'Traveler';
 
       if (!name || !email || !password) {
         res.status(400).json({ error: 'name, email and password are required' });
@@ -55,7 +57,7 @@ export class AuthController {
       try {
         const insertResult = await pool.query(
           'INSERT INTO users (name, email, password, role, contact_info) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-          [name, email, hashedPassword, role || 'Traveler', contact_info]
+          [name, email, hashedPassword, role, contact_info]
         );
         userId = insertResult.rows[0].id;
       } catch (insertErr) {
@@ -74,7 +76,7 @@ export class AuthController {
 
       // Generate token
       const token = jwt.sign(
-        { id: userId, name, email, role: role || 'Traveler' },
+        { id: userId, name, email, role },
         process.env.JWT_SECRET || 'secret',
         { expiresIn: '7d' }
       );

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, of, catchError, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { User, AuthResponse, LoginRequest, RegisterRequest, UserStats } from '../models/user.model';
 import { environment } from '../../environments/environment';
@@ -13,9 +13,82 @@ export class AuthService {
   private apiUrl = `${getApiUrl()}/auth`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  private initialized = false;
+  private initPromise: Promise<void> | null = null;
 
   constructor(private http: HttpClient, private router: Router) {
-    this.loadUserFromStorage();
+    // Initialize auth state immediately
+    this.initAuthState();
+  }
+
+  /**
+   * Initialize auth state from localStorage
+   * This is called immediately on service construction and can also be awaited
+   */
+  initAuthState(): Promise<void> {
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+
+    this.initPromise = new Promise<void>((resolve) => {
+      try {
+        const token = this.getToken();
+        const userStr = localStorage.getItem('user');
+        
+        if (token && userStr) {
+          // Check if token is expired
+          if (this.isTokenExpired(token)) {
+            console.log('Token expired, clearing auth state');
+            this.clearAuthData();
+            resolve();
+            return;
+          }
+
+          const user = JSON.parse(userStr);
+          this.currentUserSubject.next(user);
+          console.log('Auth state restored from storage');
+          
+          // Fetch fresh profile data from server after a short delay to avoid circular dependency
+          // The delay ensures DI is fully resolved before making HTTP calls
+          setTimeout(() => this.refreshUserProfile(), 100);
+        }
+      } catch (e) {
+        console.error('Error loading auth state:', e);
+        this.clearAuthData();
+      }
+      
+      this.initialized = true;
+      resolve();
+    });
+
+    return this.initPromise;
+  }
+
+  /**
+   * Check if JWT token is expired
+   */
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expiry = payload.exp;
+      if (!expiry) return false;
+      
+      // Check if token expires within the next minute (buffer)
+      const now = Math.floor(Date.now() / 1000);
+      return expiry < now + 60;
+    } catch (e) {
+      console.error('Error parsing token:', e);
+      return true; // Consider invalid tokens as expired
+    }
+  }
+
+  /**
+   * Clear all auth data from storage
+   */
+  private clearAuthData(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this.currentUserSubject.next(null);
   }
 
   private loadUserFromStorage(): void {
@@ -23,12 +96,42 @@ export class AuthService {
     const userStr = localStorage.getItem('user');
     if (token && userStr) {
       try {
+        if (this.isTokenExpired(token)) {
+          this.clearAuthData();
+          return;
+        }
         const user = JSON.parse(userStr);
         this.currentUserSubject.next(user);
       } catch (e) {
         this.logout();
       }
     }
+  }
+
+  /**
+   * Refresh user profile from server to ensure data (like profile picture) is up to date
+   * This runs in the background and doesn't block the app
+   */
+  private refreshUserProfile(): void {
+    this.http.get<{ user: User }>(`${this.apiUrl}/profile`).subscribe({
+      next: (response) => {
+        if (response.user) {
+          // Update localStorage and BehaviorSubject with fresh data
+          localStorage.setItem('user', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
+          console.log('User profile refreshed from server');
+        }
+      },
+      error: (error) => {
+        // If we get a 401, the token is invalid
+        if (error.status === 401) {
+          console.log('Token invalid, clearing auth state');
+          this.clearAuthData();
+        } else {
+          console.warn('Failed to refresh user profile:', error);
+        }
+      }
+    });
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
@@ -48,10 +151,36 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    this.currentUserSubject.next(null);
+    this.clearAuthData();
     this.router.navigate(['/login']);
+  }
+
+  /**
+   * Verify token is still valid with the server
+   * This helps ensure the session is truly valid, not just a stale token
+   */
+  verifySession(): Observable<boolean> {
+    const token = this.getToken();
+    if (!token || this.isTokenExpired(token)) {
+      this.clearAuthData();
+      return of(false);
+    }
+
+    return this.http.get<{ user: User }>(`${this.apiUrl}/profile`).pipe(
+      map(response => {
+        // Update stored user data with server data
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
+        }
+        return true;
+      }),
+      catchError(() => {
+        // If profile fetch fails, clear auth state
+        this.clearAuthData();
+        return of(false);
+      })
+    );
   }
 
   private setSession(authResult: AuthResponse): void {
@@ -93,11 +222,21 @@ export class AuthService {
   uploadProfilePicture(file: File): Observable<{ message: string; profile_picture: string }> {
     const formData = new FormData();
     formData.append('profile_picture', file);
-    return this.http.post<{ message: string; profile_picture: string }>(`${this.apiUrl}/profile/picture`, formData);
+    return this.http.post<{ message: string; profile_picture: string }>(`${this.apiUrl}/profile/picture`, formData).pipe(
+      tap(response => {
+        // Automatically update the current user with the new profile picture
+        this.updateCurrentUser({ profile_picture: response.profile_picture });
+      })
+    );
   }
 
   removeProfilePicture(): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/profile/picture`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/profile/picture`).pipe(
+      tap(() => {
+        // Automatically remove the profile picture from current user
+        this.updateCurrentUser({ profile_picture: undefined });
+      })
+    );
   }
 
   updateCurrentUser(updates: Partial<User>): void {

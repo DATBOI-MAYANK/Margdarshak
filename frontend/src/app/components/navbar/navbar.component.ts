@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
@@ -25,20 +25,30 @@ export class NavbarComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private router: Router,
     private messageService: MessageService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe(user => {
+    // Subscribe to auth state changes
+    const authSub = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.isLoggedIn = !!user;
       this.isAdmin = user?.role === 'Admin';
       
+      // Force change detection to ensure UI updates
+      this.cdr.detectChanges();
+      
       if (user) {
         this.loadNotificationCount();
         this.setupSocketListeners();
+      } else {
+        // Clear socket connection when logged out
+        this.socketService.disconnect();
+        this.notificationCount = 0;
       }
     });
+    this.subscriptions.push(authSub);
   }
 
   ngOnDestroy(): void {

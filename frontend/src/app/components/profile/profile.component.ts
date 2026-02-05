@@ -233,11 +233,10 @@ export class ProfileComponent implements OnInit {
         this.snackBar.open('Profile picture updated successfully!', 'Close', { duration: 3000 });
         this.uploadingPicture = false;
         
-        // Update current user
+        // Update current user - the auth service already updates localStorage and BehaviorSubject
         if (this.currentUser) {
           this.currentUser.profile_picture = response.profile_picture;
         }
-        this.authService.updateCurrentUser({ profile_picture: response.profile_picture });
       },
       error: (error) => {
         this.snackBar.open(error.error?.error || 'Failed to upload profile picture', 'Close', { duration: 3000 });
@@ -255,10 +254,10 @@ export class ProfileComponent implements OnInit {
         this.snackBar.open('Profile picture removed', 'Close', { duration: 3000 });
         this.removingPicture = false;
         
+        // Update current user - the auth service already updates localStorage and BehaviorSubject
         if (this.currentUser) {
           this.currentUser.profile_picture = undefined;
         }
-        this.authService.updateCurrentUser({ profile_picture: undefined });
       },
       error: (error) => {
         this.snackBar.open(error.error?.error || 'Failed to remove profile picture', 'Close', { duration: 3000 });

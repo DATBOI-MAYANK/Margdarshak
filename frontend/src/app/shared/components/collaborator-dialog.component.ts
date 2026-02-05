@@ -158,7 +158,7 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
       border-radius: 4px 4px 0 0;
       margin: -24px -24px 24px -24px;
 
-      mat-icon {
+      & mat-icon {
         font-size: 28px;
         width: 28px;
         height: 28px;
@@ -176,7 +176,7 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
       padding-bottom: 16px;
       border-bottom: 1px solid #eee;
 
-      h3 {
+      & h3 {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -184,7 +184,7 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
         font-size: 16px;
         color: #333;
 
-        mat-icon {
+        & mat-icon {
           color: #ff9800;
         }
       }
@@ -231,7 +231,7 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
       background: linear-gradient(135deg, #ff9800, #f57c00) !important;
       color: white !important;
       
-      mat-icon {
+      & mat-icon {
         font-size: 14px;
         width: 14px;
         height: 14px;
@@ -255,14 +255,14 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
         width: 140px;
       }
 
-      button {
+      & button {
         margin-top: 4px;
         height: 56px;
       }
     }
 
     .collaborators-section {
-      h3 {
+      & h3 {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -270,7 +270,7 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
         font-size: 16px;
         color: #333;
 
-        mat-icon {
+        & mat-icon {
           color: #667eea;
         }
 
@@ -296,14 +296,14 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
       padding: 30px;
       color: #888;
 
-      mat-icon {
+      & mat-icon {
         font-size: 48px;
         width: 48px;
         height: 48px;
         margin-bottom: 10px;
       }
 
-      p {
+      & p {
         margin: 0;
       }
     }
@@ -340,10 +340,10 @@ import { CollaboratorService, Collaborator, OwnerInfo } from '../../core/service
         align-items: center;
         gap: 8px;
 
-        mat-chip {
+        & mat-chip {
           font-size: 12px;
 
-          mat-icon {
+          & mat-icon {
             font-size: 14px;
             width: 14px;
             height: 14px;

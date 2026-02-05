@@ -78,7 +78,7 @@ export interface ImageCropDialogData {
       margin: 0;
       color: #1e3c72;
       
-      mat-icon {
+      & mat-icon {
         color: #667eea;
       }
     }
@@ -98,7 +98,7 @@ export interface ImageCropDialogData {
       margin-top: 20px;
       text-align: center;
       
-      p {
+      & p {
         margin: 0 0 12px;
         color: #666;
         font-size: 0.9rem;
@@ -113,7 +113,7 @@ export interface ImageCropDialogData {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         border: 3px solid #667eea;
         
-        img {
+        & img {
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -125,7 +125,7 @@ export interface ImageCropDialogData {
       padding: 16px 0 0;
       margin: 0;
       
-      button {
+      & button {
         display: flex;
         align-items: center;
         gap: 8px;

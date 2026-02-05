@@ -386,6 +386,75 @@ import { MessageDetailDialogComponent } from './message-detail-dialog.component'
       font-weight: 500;
       color: #666;
     }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .message-center-container {
+        padding: 16px 12px;
+      }
+
+      .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .message-header h1 {
+        font-size: 1.3rem;
+        gap: 8px;
+      }
+
+      .message-header h1 mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .header-actions button[mat-raised-button] {
+        font-size: 0.8rem;
+        padding: 0 12px;
+      }
+
+      .tab-label {
+        margin-left: 4px;
+        font-size: 0.8rem;
+      }
+
+      .tab-content {
+        min-height: 300px;
+        padding: 8px;
+      }
+
+      .badge {
+        margin-left: 4px;
+        padding: 1px 6px;
+        font-size: 0.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .message-center-container {
+        padding: 12px 8px;
+      }
+
+      .message-header h1 {
+        font-size: 1.15rem;
+      }
+
+      .tab-label {
+        display: none;
+      }
+
+      .tab-content {
+        padding: 4px;
+      }
+    }
   `]
 })
 export class MessageCenterComponent implements OnInit, OnDestroy {

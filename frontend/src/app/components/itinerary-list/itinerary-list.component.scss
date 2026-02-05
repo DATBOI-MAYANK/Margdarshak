@@ -1,882 +1,1041 @@
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-30px) rotate(5deg);
-  }
+// ============================================
+// CLEAN MODERN ITINERARY LIST DESIGN
+// ============================================
+
+// Variables
+$primary: #6366f1;
+$primary-light: #818cf8;
+$accent: #10b981;
+$danger: #ef4444;
+$warning: #f59e0b;
+$dark: #1e293b;
+$gray: #64748b;
+$light-gray: #f1f5f9;
+$white: #ffffff;
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes planefly {
-  0% {
-    left: -30px;
-    opacity: 0;
-    transform: translateY(0) rotate(-15deg);
-  }
-  10% {
-    opacity: 1;
-  }
-  50% {
-    transform: translateY(-8px) rotate(-20deg);
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    left: calc(100% + 30px);
-    opacity: 0;
-    transform: translateY(-5px) rotate(-15deg);
-  }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes buttonExpand {
-  0% {
-    padding: 10px 24px;
-  }
-  100% {
-    padding: 10px 50px;
-  }
-}
-
-@keyframes textFadeOut {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes colorShift {
-  0% {
-    background: linear-gradient(135deg, #8a2be2 0%, #ba55d3 100%);
-  }
-  100% {
-    background: linear-gradient(135deg, #a855f7 0%, #d8b4fe 100%);
-  }
-}
-
+// Base Layout
 :host {
   display: block;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
-  position: relative;
-  overflow-x: hidden;
-}
-
-// Glowing Orbs Background
-.bg-shapes {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-
-  .shape {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(100px);
-    opacity: 0.35;
-    animation: float 20s ease-in-out infinite;
-
-    &.shape-1 {
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(
-        circle,
-        rgba(138, 43, 226, 0.6) 0%,
-        transparent 70%
-      );
-      top: -150px;
-      left: -150px;
-      animation-delay: 0s;
-    }
-
-    &.shape-2 {
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(
-        circle,
-        rgba(255, 0, 128, 0.5) 0%,
-        transparent 70%
-      );
-      bottom: -100px;
-      right: -100px;
-      animation-delay: -5s;
-      animation-duration: 25s;
-    }
-
-    &.shape-3 {
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(
-        circle,
-        rgba(0, 255, 128, 0.4) 0%,
-        transparent 70%
-      );
-      bottom: 30%;
-      left: -50px;
-      animation-delay: -10s;
-      animation-duration: 18s;
-    }
-
-    &.shape-4 {
-      width: 350px;
-      height: 350px;
-      background: radial-gradient(
-        circle,
-        rgba(186, 85, 211, 0.5) 0%,
-        transparent 70%
-      );
-      top: 40%;
-      right: 5%;
-      animation-delay: -7s;
-      animation-duration: 22s;
-    }
-
-    &.shape-5 {
-      width: 250px;
-      height: 250px;
-      background: radial-gradient(
-        circle,
-        rgba(0, 200, 255, 0.4) 0%,
-        transparent 70%
-      );
-      top: 10%;
-      right: 20%;
-      animation-delay: -3s;
-      animation-duration: 20s;
-    }
-  }
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .itinerary-list-container {
-  padding: 30px;
   max-width: 1400px;
   margin: 0 auto;
-  position: relative;
-  z-index: 1;
+  padding: 24px 24px;
 }
 
+// Header Section
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-
+  text-align: center;
+  margin-bottom: 24px;
+  animation: fadeIn 0.6s ease-out;
+  
   h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: $dark;
     margin: 0;
-    color: #1f2937;
-    text-shadow: 0 4px 20px rgba(138, 43, 226, 0.25);
-
-    font-family: "Poppins", sans-serif;
-    font-size: 2rem;
-    font-weight: 600;
+    letter-spacing: -0.02em;
   }
+}
 
-  // Create New Itinerary Button with Plane Animation
-  .create-btn {
-    background: transparent !important;
-    border: 2px solid rgba(138, 43, 226, 0.6) !important;
-    color: #ba55d3 !important;
-    font-weight: 600;
-    padding: 10px 24px;
-    border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    min-width: 220px;
+// Quick Actions Bar
+.quick-actions {
+  margin-bottom: 20px;
+  animation: slideUp 0.5s ease-out;
+  animation-delay: 0.1s;
+  animation-fill-mode: both;
+  
+  .actions-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: $white;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 
-    .btn-text {
+    .stats-section {
+      display: flex;
+      gap: 32px;
+
+      .stat-item {
+        text-align: left;
+        
+        .stat-number {
+          display: block;
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: $primary;
+          line-height: 1.2;
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 0.7rem;
+          color: $gray;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-top: 2px;
+        }
+      }
+    }
+
+    .create-new-btn {
+      background: linear-gradient(135deg, $primary 0%, $primary-light 100%) !important;
+      color: $white !important;
+      border: none !important;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
       display: flex;
       align-items: center;
       gap: 8px;
       transition: all 0.3s ease;
-      position: relative;
-      z-index: 2;
-    }
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 
-    .plane-icon {
-      position: absolute;
-      left: -30px;
-      top: 50%;
-      transform: translateY(-50%) rotate(-15deg);
-      opacity: 0;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      // Plane color matching dark purple/magenta surroundings
-      color: #ba55d3;
-      text-shadow: 0 0 15px rgba(186, 85, 211, 0.8),
-        0 0 30px rgba(138, 43, 226, 0.6);
-      z-index: 3;
-    }
-
-    // Hover state - lift with shadow, text scales
-    &:hover {
-      background: linear-gradient(135deg, #8a2be2 0%, #ba55d3 100%) !important;
-      color: white !important;
-      border-color: transparent !important;
-      transform: translateY(-3px);
-      box-shadow: 0 12px 35px rgba(138, 43, 226, 0.5),
-        0 0 20px rgba(186, 85, 211, 0.3);
-
-      .btn-text {
-        transform: scale(1.05);
-      }
-    }
-
-    // Active/Click state - plane flies
-    &:active {
-      animation: buttonExpand 0.3s ease forwards;
-      background: linear-gradient(135deg, #a855f7 0%, #d8b4fe 100%) !important;
-      transform: translateY(-1px);
-
-      .btn-text {
-        animation: textFadeOut 0.2s ease forwards;
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
       }
 
-      .plane-icon {
-        animation: planefly 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
       }
     }
   }
 }
 
+// Filters Section
 .filters-card {
-  margin-bottom: 25px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(138, 43, 226, 0.2) !important;
+  background: $white;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  animation: slideUp 0.5s ease-out;
+  animation-delay: 0.2s;
+  animation-fill-mode: both;
 }
 
 .filters {
-  display: flex;
-  gap: 15px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  .filter-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
 
-  mat-form-field {
-    flex: 1;
-    min-width: 150px;
-
+  .filter-field {
     ::ng-deep {
       .mat-mdc-text-field-wrapper {
-        background: rgba(138, 43, 226, 0.06) !important;
-        border-radius: 10px !important;
+        background: $light-gray !important;
+        border-radius: 12px !important;
       }
 
       .mdc-notched-outline__leading,
       .mdc-notched-outline__notch,
       .mdc-notched-outline__trailing {
-        border-color: rgba(138, 43, 226, 0.4) !important;
+        border-color: transparent !important;
       }
 
       .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
       .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
       .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-        border-color: #ba55d3 !important;
+        border-color: $primary !important;
       }
 
       .mat-mdc-floating-label,
       .mdc-floating-label {
-        color: rgba(186, 85, 211, 0.9) !important;
+        color: $gray !important;
+        font-weight: 500;
       }
 
       .mat-mdc-input-element {
-        color: #1f2937 !important;
+        color: $dark !important;
+        font-weight: 500;
       }
 
       mat-icon {
-        color: #ba55d3;
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
-
-      .mat-mdc-form-field-icon-suffix,
-      .mat-mdc-form-field-icon-prefix {
-        display: flex;
-        align-items: center;
-        padding: 0 4px;
-      }
-
-      .mat-mdc-form-field-text-suffix,
-      .mat-mdc-form-field-text-prefix {
-        display: flex;
-        align-items: center;
-        color: rgba(186, 85, 211, 0.8);
+        color: $gray;
       }
     }
   }
 
-  button {
-    height: 56px;
-    margin-top: 2px;
-
-    &[color="accent"] {
-      background: linear-gradient(135deg, #8a2be2 0%, #ba55d3 100%) !important;
-      color: white !important;
-      border-radius: 10px;
-
-      &:hover {
-        box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
-      }
-    }
-
-    &:not([color]) {
-      color: rgba(255, 255, 255, 0.7) !important;
-
-      &:hover {
-        color: white !important;
-      }
-    }
-  }
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 50px;
-
-  mat-spinner {
-    ::ng-deep circle {
-      stroke: #ba55d3 !important;
-    }
-  }
-}
-
-.error {
-  text-align: center;
-  padding: 20px;
-  color: #ff6b6b;
-  background: rgba(244, 67, 54, 0.1);
-  border-radius: 12px;
-  border: 1px solid rgba(244, 67, 54, 0.3);
-}
-
-.itineraries-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 25px;
-}
-
-.itinerary-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(138, 43, 226, 0.2) !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-
-  &:hover {
-    border-color: rgba(138, 43, 226, 0.5) !important;
-    box-shadow: 0 20px 50px rgba(138, 43, 226, 0.2) !important;
-    transform: translateY(-5px);
-  }
-
-  mat-card-header {
-    margin-bottom: 16px;
-    padding: 20px 20px 0;
-
-    mat-card-title {
-      font-family: "Poppins", sans-serif;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #111827;
-
-      text-transform: capitalize;
-    }
-
-    mat-card-subtitle {
-      color: #ba55d3;
-      font-weight: 500;
-    }
-  }
-
-  mat-card-content {
-    padding: 0 20px;
-
-    div {
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      color: #6b7280;
-
-      strong {
-        color: #ba55d3;
-      }
-    }
-  }
-
-  mat-card-actions {
+  .filter-actions {
     display: flex;
-    gap: 10px;
-    padding: 16px 20px;
-    background: rgba(138, 43, 226, 0.06);
-
-    border-top: 1px solid rgba(138, 43, 226, 0.2);
-
-    button {
-      font-weight: 500;
-      border-radius: 8px;
-
-      &[color="primary"] {
-        color: #ba55d3 !important;
-      }
-
-      &[color="accent"] {
-        color: #00ff80 !important;
-      }
-
-      &[color="warn"] {
-        color: #ff6b6b !important;
-      }
-    }
-  }
-}
-
-.chat-unread-corner {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(10, 10, 10, 0.65);
-  border: 1px solid rgba(186, 85, 211, 0.35);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
-  color: #ffffff;
-
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    color: #ffffff;
-    opacity: 0.9;
+    gap: 12px;
+    justify-content: flex-end;
   }
 
-  span {
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1;
-  }
-}
-
-.no-results {
-  text-align: center;
-  padding: 60px 40px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(138, 43, 226, 0.2);
-
-  mat-icon {
-    font-size: 80px;
-    width: 80px;
-    height: 80px;
-    color: #ba55d3;
-    margin-bottom: 20px;
-  }
-
-  h2 {
-    color: #1f2937;
-    font-family: "Poppins", sans-serif;
+  .apply-btn {
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%) !important;
+    color: $white !important;
+    border: none !important;
+    padding: 12px 24px;
+    border-radius: 12px;
     font-weight: 600;
-    margin-bottom: 10px;
-  }
-
-  p {
-    color: #6b7280;
-    margin-bottom: 25px;
-    font-size: 1.1rem;
-  }
-
-  button {
-    background: linear-gradient(135deg, #8a2be2 0%, #ba55d3 100%) !important;
-    color: white !important;
-    padding: 12px 30px;
-    font-size: 1rem;
-    border-radius: 30px;
-    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(138, 43, 226, 0.5);
-    }
-  }
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 80px;
-
-  mat-spinner {
-    ::ng-deep circle {
-      stroke: #ba55d3 !important;
-    }
-  }
-}
-
-.error {
-  text-align: center;
-  padding: 30px;
-  color: #ff6b6b;
-  background: rgba(244, 67, 54, 0.15);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(244, 67, 54, 0.3);
-}
-
-// Shared Itinerary Styles
-.shared-itinerary {
-  position: relative;
-  border: 2px solid #00ff80 !important;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #00ff80, #00d4aa);
-  }
-}
-
-.shared-itinerary .chat-unread-corner {
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-}
-
-.shared-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #00ff80, #00d4aa);
-  color: #0a0a0a;
-  font-size: 13px;
-  font-weight: 600;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.permission-indicator {
-  margin-top: 12px;
-
-  mat-chip {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 20px;
-
-    &.edit-permission {
-      background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%) !important;
-      color: #ffffff !important;
-      box-shadow: 0 2px 8px rgba(0, 212, 170, 0.4);
-    }
-
-    &.view-permission {
-      background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
-      color: #ffffff !important;
-      box-shadow: 0 2px 8px rgba(116, 185, 255, 0.4);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
     }
 
     mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      margin-right: 6px;
-      color: #ffffff !important;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .clear-btn {
+    background: $light-gray !important;
+    color: $gray !important;
+    border: none !important;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: darken($light-gray, 5%) !important;
+      color: $dark !important;
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
   }
 }
 
-::ng-deep button[mat-button] {
-  background-color: #7a1f2b !important; /* premium muted red */
-  border-radius: 8px;
-}
-
-::ng-deep button[mat-button] .mdc-button__label {
-  color: #ffffff !important;
-  font-weight: 500;
-}
-
-::ng-deep button[mat-button] mat-icon {
-  color: #ffffff !important;
-}
-
-::ng-deep button[mat-button]:hover {
-  background-color: #922635 !important;
-}
-
-::ng-deep button[mat-button]:active {
-  background-color: #611823 !important;
-}
-
-::ng-deep mat-form-field mat-label,
-::ng-deep .mat-mdc-form-field .mdc-floating-label {
-  color: rgba(186, 85, 211, 0.9) !important;
-}
-
-::ng-deep .mat-mdc-form-field.mat-focused .mdc-floating-label,
-::ng-deep
-  .mat-mdc-form-field.mat-mdc-form-field-should-float
-  .mdc-floating-label {
-  color: rgba(186, 85, 211, 0.9) !important;
-}
-/* ===============================
-   FORCE DATE LABEL COLOR (MDC TOKEN OVERRIDE)
-   =============================== */
-
-::ng-deep .mat-mdc-form-field {
-  --mdc-filled-text-field-label-text-color: rgba(186, 85, 211, 0.9);
-  --mdc-outlined-text-field-label-text-color: rgba(186, 85, 211, 0.9);
-  --mdc-outlined-text-field-focus-label-text-color: rgba(186, 85, 211, 0.9);
-}
-mat-form-field {
-  ::ng-deep .mat-mdc-floating-label,
-  ::ng-deep .mdc-floating-label {
-    color: rgba(56, 189, 248, 0.9) !important; // your blue
-  }
-}
-mat-form-field {
-  ::ng-deep .mat-datepicker-toggle {
-    color: rgba(56, 189, 248, 0.9) !important;
-  }
-
-  ::ng-deep .mat-datepicker-toggle-default-icon {
-    fill: rgba(56, 189, 248, 0.9) !important;
-  }
-}
-mat-form-field {
-  ::ng-deep .mat-mdc-input-element {
-    color: rgba(255, 255, 255, 0.92) !important;
-    caret-color: rgba(56, 189, 248, 0.9) !important;
-  }
-}
-mat-form-field {
-  ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
-  ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
-  ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-    border-color: rgba(56, 189, 248, 0.9) !important;
-  }
-}
-/* ================= HELP BOT ================= */
-
-.help-bot-fab {
-  position: fixed;
-  bottom: 28px;
-  right: 28px;
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: radial-gradient(
-    circle,
-    rgba(106, 92, 255, 0.25),
-    rgba(106, 92, 255, 0.05)
-  );
-
-  box-shadow: 0 0 0 rgba(106, 92, 255, 0.6), 0 0 35px rgba(106, 92, 255, 0.5);
-
-  animation: pulseGlow 3s infinite;
-}
-
-@keyframes pulseGlow {
-  0% {
-    box-shadow: 0 0 12px rgba(106, 92, 255, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 28px rgba(106, 92, 255, 0.85);
-  }
-  100% {
-    box-shadow: 0 0 12px rgba(106, 92, 255, 0.5);
+// Section Header
+.my-trips-section {
+  margin-bottom: 16px;
+  animation: slideUp 0.5s ease-out;
+  animation-delay: 0.3s;
+  animation-fill-mode: both;
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 16px;
+    
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: $dark;
+      margin: 0 0 4px 0;
+    }
+    
+    p {
+      font-size: 0.85rem;
+      color: $gray;
+      margin: 0;
+      font-weight: 500;
+    }
   }
 }
 
-.help-bot-fab img {
-  width: 100%;
-  height: 100%;
+// Itineraries Grid
+.itineraries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: stretch;
 }
 
-.help-bot-fab:hover {
-  transform: scale(1.08);
-}
-
-.help-bot-fab img {
-  width: 50px;
-}
-
-.help-bot-wrapper {
-  position: fixed;
-  bottom: 110px;
-  right: 28px;
-  width: 360px;
-  max-height: 520px;
-  z-index: 999;
-  transform: translateY(20px);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.35s ease;
-}
-
-.help-bot-wrapper.open {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.help-bot-window {
-  background: rgba(20, 20, 30, 0.96);
-  border-radius: 18px;
+// Itinerary Card
+.itinerary-card {
+  background: $white;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUp 0.5s ease-out;
+  animation-fill-mode: both;
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+
+  @for $i from 1 through 12 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.1 + $i * 0.08}s;
+    }
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  &.shared-itinerary {
+    .shared-badge {
+      display: flex;
+    }
+  }
 }
 
-.bot-header {
-  padding: 14px 18px;
-  display: flex;
-  justify-content: space-between;
+// Shared Badge - positioned as overlay
+.shared-badge {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, $accent 0%, #34d399 100%);
+  color: $white;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
   align-items: center;
-  background: linear-gradient(90deg, #262545, #2f2e5f);
+  justify-content: center;
+  gap: 6px;
+  z-index: 5;
 
-  color: white;
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// All cards have same padding
+.itinerary-card {
+  .card-content {
+    padding-top: 16px;
+  }
+  
+  &.shared-itinerary {
+    .shared-badge {
+      display: flex;
+    }
+    
+    .card-content {
+      padding-top: 36px; // Extra space for the overlay badge
+    }
+  }
+}
+
+// Chat Badge
+.chat-unread-corner {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: $danger;
+  color: $white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Card Content
+.card-content {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+// Card Header
+.card-header {
+  margin-bottom: 12px;
+  min-height: 50px;
+
+  .destination-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $dark;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+    text-transform: capitalize;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .date-range {
+    color: $gray;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    .duration {
+      background: rgba($primary, 0.1);
+      color: $primary;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+  }
+}
+
+// Card Details Grid
+.card-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .detail-item {
+    background: $light-gray;
+    padding: 12px 6px;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: darken($light-gray, 3%);
+    }
+
+    mat-icon {
+      color: $primary;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-bottom: 4px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .detail-text {
+      .detail-label {
+        font-size: 0.6rem;
+        color: $gray;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin-bottom: 2px;
+        display: block;
+      }
+
+      .detail-value {
+        font-size: 0.85rem;
+        color: $dark;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+    }
+  }
+}
+
+// Permission Indicator
+.permission-indicator {
+  display: none;
+}
+
+// Card Actions
+.card-actions {
+  padding: 12px 16px;
+  background: $light-gray;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.view-btn {
+    background: rgba($primary, 0.1);
+    color: $primary;
+
+    &:hover {
+      background: rgba($primary, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.edit-btn {
+    background: rgba($accent, 0.1);
+    color: darken($accent, 10%);
+
+    &:hover {
+      background: rgba($accent, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.share-btn {
+    background: rgba(#3b82f6, 0.1);
+    color: #2563eb;
+
+    &:hover {
+      background: rgba(#3b82f6, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.delete-btn {
+    background: rgba($danger, 0.1);
+    color: $danger;
+
+    &:hover {
+      background: rgba($danger, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Loading State
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px;
+  
+  mat-spinner {
+    ::ng-deep circle {
+      stroke: $primary !important;
+    }
+  }
+}
+
+// Error State
+.error {
+  background: rgba($danger, 0.1);
+  color: $danger;
+  padding: 20px 24px;
+  border-radius: 16px;
+  text-align: center;
   font-weight: 600;
 }
 
-.bot-dot {
-  width: 8px;
-  height: 8px;
-  background: #00ff9c;
-  border-radius: 50%;
-  margin-right: 8px;
-  display: inline-block;
+// No Results State
+.no-results {
+  text-align: center;
+  padding: 80px 40px;
+  background: $white;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: $gray;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: $dark;
+    margin: 0 0 12px 0;
+  }
+
+  p {
+    font-size: 1rem;
+    color: $gray;
+    margin: 0 0 24px 0;
+  }
+
+  button {
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%) !important;
+    color: $white !important;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+}
+
+// CTA Section (for empty state)
+.cta-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 40px;
+
+  .cta-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 60px 48px;
+    background: $white;
+    border-radius: 32px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+
+    .cta-icon {
+      margin-bottom: 24px;
+      
+      mat-icon {
+        font-size: 72px;
+        width: 72px;
+        height: 72px;
+        color: $primary;
+      }
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: $dark;
+      margin: 0 0 12px 0;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: $gray;
+      margin: 0 0 32px 0;
+      line-height: 1.5;
+    }
+
+    .plan-trip-btn {
+      background: linear-gradient(135deg, $primary 0%, $primary-light 100%) !important;
+      color: $white !important;
+      border: none !important;
+      padding: 18px 36px;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 1.15rem;
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
+      transition: all 0.3s ease;
+      margin-bottom: 32px;
+
+      .btn-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(99, 102, 241, 0.45);
+      }
+    }
+
+    .cta-features {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: $gray;
+        font-weight: 600;
+        font-size: 0.9rem;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: $warning;
+        }
+      }
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 60px 40px;
+  
+  .empty-content {
+    .empty-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: $gray;
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: $dark;
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 1rem;
+      color: $gray;
+      margin: 0;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .filters .filter-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .itineraries-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .itinerary-list-container {
+    padding: 24px 16px;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .quick-actions .actions-content {
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px 24px;
+    
+    .stats-section {
+      gap: 32px;
+      
+      .stat-item .stat-number {
+        font-size: 1.75rem;
+      }
+    }
+    
+    .create-new-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .filters .filter-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .itineraries-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .card-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 16px 20px;
+    
+    .action-btn {
+      font-size: 0.75rem;
+      padding: 10px 6px;
+    }
+  }
+  
+  .cta-section {
+    padding: 24px;
+    min-height: 50vh;
+    
+    .cta-content {
+      padding: 40px 24px;
+      
+      h2 {
+        font-size: 1.6rem;
+      }
+      
+      p {
+        font-size: 1rem;
+      }
+      
+      .plan-trip-btn {
+        padding: 14px 28px;
+        font-size: 1rem;
+      }
+      
+      .cta-features {
+        gap: 16px;
+        
+        .feature-item {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}
+
+// Background Shapes (removed - using clean design)
+.bg-shapes {
+  display: none;
+}
+
+// Help Bot Styles (preserve existing)
+.help-bot-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 24px;
+}
+
+.help-bot-wrapper {
+  width: 380px;
+  max-width: calc(100vw - 48px);
+  max-height: 70vh;
+  background: $white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.help-bot-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  color: $white;
+  
+  .bot-title {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    .bot-dot {
+      width: 10px;
+      height: 10px;
+      background: $accent;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+  }
+  
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: $white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
 }
 
 .bot-body {
-  padding: 16px;
   flex: 1;
   overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: $light-gray;
 }
 
 .bot-msg {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px 14px;
-  border-radius: 14px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #eaeaea;
   max-width: 85%;
-}
-
-.bot-msg.user {
-  background: #6a5cff;
-  margin-left: auto;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  background: $white;
+  color: $dark;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  
+  &.user {
+    align-self: flex-end;
+    background: $primary;
+    color: $white;
+  }
 }
 
 .suggestions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
-}
-
-.suggestions button {
-  background: rgba(255, 255, 255, 0.12);
-  border: none;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  cursor: pointer;
+  margin-top: 12px;
+  
+  button {
+    background: $white;
+    border: 1px solid #e2e8f0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: $dark;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: $primary;
+      color: $white;
+      border-color: $primary;
+    }
+  }
 }
 
 .bot-input {
   display: flex;
-  padding: 10px;
-  background: #111;
+  gap: 10px;
+  padding: 16px 20px;
+  background: $white;
+  border-top: 1px solid #e2e8f0;
+  
+  input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    
+    &:focus {
+      border-color: $primary;
+    }
+  }
+  
+  button {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: $primary;
+    color: $white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+    
+    &:hover {
+      transform: scale(1.05);
+      background: $primary-light;
+    }
+  }
 }
 
-.bot-input input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: white;
-  padding: 8px;
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 
-.bot-input button {
-  background: #6a5cff;
-  border: none;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.close-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1;
-
-  cursor: pointer;
-  outline: none;
-  box-shadow: none;
-
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.close-btn:hover {
-  opacity: 0.7;
-  transform: scale(1.1);
-}
-
-.close-btn:focus,
-.close-btn:active {
-  outline: none;
-  box-shadow: none;
-}
-.help-bot-backdrop {
+// Floating Help Bot Button
+.help-bot-fab {
   position: fixed;
-  inset: 0;
-  background: transparent;
-  z-index: 998;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
+  }
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: $white;
+  }
+
+  img {
+    width: 28px;
+    height: 28px;
+    filter: brightness(0) invert(1);
+  }
 }

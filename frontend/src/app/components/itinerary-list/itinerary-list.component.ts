@@ -168,6 +168,13 @@ export class ItineraryListComponent implements OnInit {
     this.router.navigate(["/itineraries/new"]);
   }
 
+  getTotalBudget(): number {
+    if (!this.itineraries || this.itineraries.length === 0) return 0;
+    return this.itineraries.reduce((total, itinerary) => {
+      return total + (itinerary.budget || 0);
+    }, 0);
+  }
+
   shareItinerary(itinerary: Itinerary): void {
     this.dialog.open(ShareItineraryDialogComponent, {
       width: "600px",

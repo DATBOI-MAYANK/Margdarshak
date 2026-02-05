@@ -241,7 +241,7 @@ import { User } from '../../models/user.model';
     .page-header {
       margin-bottom: 24px;
 
-      h1 {
+      & h1 {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -249,7 +249,7 @@ import { User } from '../../models/user.model';
         font-size: 1.8rem;
         color: #333;
 
-        mat-icon {
+        & mat-icon {
           font-size: 32px;
           width: 32px;
           height: 32px;
@@ -299,14 +299,14 @@ import { User } from '../../models/user.model';
     .broadcast-form, .send-user-form {
       max-width: 600px;
 
-      h3 {
+      & h3 {
         display: flex;
         align-items: center;
         gap: 8px;
         color: #333;
         margin-bottom: 8px;
 
-        mat-icon {
+        & mat-icon {
           color: #667eea;
         }
       }
@@ -321,7 +321,7 @@ import { User } from '../../models/user.model';
         margin-bottom: 16px;
       }
 
-      button {
+      & button {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -341,7 +341,7 @@ import { User } from '../../models/user.model';
         background: #f5f5f5;
         border-radius: 12px;
 
-        mat-icon {
+        & mat-icon {
           font-size: 28px;
           width: 28px;
           height: 28px;
@@ -362,12 +362,12 @@ import { User } from '../../models/user.model';
 
         &.pending {
           background: #fff3e0;
-          mat-icon { color: #ff9800; }
+          & mat-icon { color: #ff9800; }
         }
 
         &.resolved {
           background: #e8f5e9;
-          mat-icon { color: #4caf50; }
+          & mat-icon { color: #4caf50; }
         }
       }
     }
@@ -378,7 +378,7 @@ import { User } from '../../models/user.model';
       gap: 16px;
       margin-bottom: 16px;
 
-      mat-form-field {
+      & mat-form-field {
         width: 200px;
       }
     }
@@ -396,7 +396,7 @@ import { User } from '../../models/user.model';
       padding: 40px;
       color: #9e9e9e;
 
-      mat-icon {
+      & mat-icon {
         font-size: 64px;
         width: 64px;
         height: 64px;
@@ -420,7 +420,7 @@ import { User } from '../../models/user.model';
         border-left: 4px solid #ff9800;
       }
 
-      mat-icon.pending {
+      & mat-icon.pending {
         color: #ff9800;
       }
     }

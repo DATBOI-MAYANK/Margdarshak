@@ -1,134 +1,169 @@
 <div class="register-page">
-  <!-- Animated Background -->
-  <div class="bg-shapes">
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
-    <div class="shape shape-4"></div>
-  </div>
-
-  <div class="register-wrapper">
-    <!-- Left Side - Branding -->
-    <div class="branding-section">
+  <div class="register-card">
+    <!-- Left - Brand Side -->
+    <div class="brand-side">
       <div class="brand-content">
-        <div class="logo-icon">
-          <mat-icon>person_add</mat-icon>
+        <div class="brand-top">
+          <div class="logo-box">
+            <img src="assets/logo/logo1.png" alt="Voyage.IQ" class="logo-img" />
+          </div>
+          <div>
+            <h1 class="app-name">Voyage<span class="dot">.IQ</span></h1>
+            <p class="app-desc">Plan smarter. Travel better.</p>
+          </div>
         </div>
-        <h1>Join Us!</h1>
-        <p class="tagline">Start your travel journey today</p>
-        <div class="features">
-          <div class="feature">
-            <mat-icon>check_circle</mat-icon>
-            <span>Free Account Creation</span>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>person_add</mat-icon>
+            </div>
+            <div>
+              <p class="feature-title">Free Account</p>
+              <p class="feature-sub">Create your account in seconds, no cost</p>
+            </div>
           </div>
-          <div class="feature">
-            <mat-icon>check_circle</mat-icon>
-            <span>Unlimited Trip Planning</span>
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>map</mat-icon>
+            </div>
+            <div>
+              <p class="feature-title">Unlimited Trips</p>
+              <p class="feature-sub">Plan as many itineraries as you need</p>
+            </div>
           </div>
-          <div class="feature">
-            <mat-icon>check_circle</mat-icon>
-            <span>Smart Budget Tracking</span>
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>savings</mat-icon>
+            </div>
+            <div>
+              <p class="feature-title">Budget Tracking</p>
+              <p class="feature-sub">Stay on top of your travel expenses</p>
+            </div>
           </div>
-          <div class="feature">
-            <mat-icon>check_circle</mat-icon>
-            <span>Weather Forecasts</span>
+        </div>
+
+        <div class="brand-bottom">
+          <div class="review-row">
+            <div class="stars">
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star_half</mat-icon>
+            </div>
+            <span class="rating-text">4.8 / 5</span>
           </div>
+          <p class="trust-text">Trusted by 10,000+ travelers</p>
         </div>
       </div>
     </div>
 
-    <!-- Right Side - Register Form -->
-    <div class="form-section">
-      <div class="register-card">
-        <div class="card-header">
-          <h2>Create Account</h2>
+    <!-- Right - Form Side -->
+    <div class="form-side">
+      <div class="form-content">
+        <div class="form-top">
+          <h2>Create account</h2>
           <p>Fill in your details to get started</p>
         </div>
-        
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-          <div class="input-row">
-            <div class="input-group">
-              <mat-icon class="input-icon">person</mat-icon>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Full Name</mat-label>
-                <input matInput formControlName="name" placeholder="Enter your name">
-                <mat-error *ngIf="name?.hasError('required')">Name is required</mat-error>
-                <mat-error *ngIf="name?.hasError('minlength')">Min 2 characters</mat-error>
-              </mat-form-field>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" autocomplete="off">
+          <div class="form-field">
+            <label for="name">Full name</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="name" formControlName="name" placeholder="John Doe" />
+              <mat-error *ngIf="name?.hasError('required')">Name is required</mat-error>
+              <mat-error *ngIf="name?.hasError('minlength')">At least 2 characters</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-field">
+            <label for="email">Email</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="email" type="email" formControlName="email" placeholder="name@example.com" />
+              <mat-error *ngIf="email?.hasError('required')">Email is required</mat-error>
+              <mat-error *ngIf="email?.hasError('email')">Enter a valid email</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="password">Password</label>
+              <div class="password-field">
+                <mat-form-field appearance="outline" class="w-full">
+                  <input
+                    matInput
+                    id="password"
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    placeholder="Min 6 characters"
+                  />
+                  <mat-error *ngIf="password?.hasError('required')">Required</mat-error>
+                  <mat-error *ngIf="password?.hasError('minlength')">Min 6 chars</mat-error>
+                </mat-form-field>
+                <button type="button" class="eye-btn" (click)="togglePassword()" tabindex="-1">
+                  <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="confirmPassword">Confirm password</label>
+              <div class="password-field">
+                <mat-form-field appearance="outline" class="w-full">
+                  <input
+                    matInput
+                    id="confirmPassword"
+                    [type]="showConfirmPassword ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    placeholder="Re-enter password"
+                  />
+                  <mat-error *ngIf="confirmPassword?.hasError('required')">Required</mat-error>
+                  <mat-error *ngIf="confirmPassword?.hasError('passwordMismatch')">Passwords don't match</mat-error>
+                </mat-form-field>
+                <button type="button" class="eye-btn" (click)="toggleConfirmPassword()" tabindex="-1">
+                  <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="input-row">
-            <div class="input-group">
-              <mat-icon class="input-icon">email</mat-icon>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Email Address</mat-label>
-                <input matInput type="email" formControlName="email" placeholder="Enter your email">
-                <mat-error *ngIf="email?.hasError('required')">Email is required</mat-error>
-                <mat-error *ngIf="email?.hasError('email')">Invalid email</mat-error>
-              </mat-form-field>
-            </div>
+          <div class="form-field">
+            <label for="contact">Contact <span class="optional-tag">optional</span></label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="contact" formControlName="contact_info" placeholder="Phone number" />
+            </mat-form-field>
           </div>
 
-          <div class="input-row two-col">
-            <div class="input-group">
-              <mat-icon class="input-icon">lock</mat-icon>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Password</mat-label>
-                <input matInput type="password" formControlName="password" placeholder="Password">
-                <mat-error *ngIf="password?.hasError('required')">Required</mat-error>
-                <mat-error *ngIf="password?.hasError('minlength')">Min 6 chars</mat-error>
-              </mat-form-field>
-            </div>
-            <div class="input-group">
-              <mat-icon class="input-icon">lock_outline</mat-icon>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Confirm Password</mat-label>
-                <input matInput type="password" formControlName="confirmPassword" placeholder="Confirm">
-                <mat-error *ngIf="confirmPassword?.hasError('required')">Required</mat-error>
-                <mat-error *ngIf="confirmPassword?.hasError('passwordMismatch')">Mismatch</mat-error>
-              </mat-form-field>
-            </div>
-          </div>
-
-          <div class="input-row">
-            <div class="input-group">
-              <mat-icon class="input-icon">phone</mat-icon>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Contact (Optional)</mat-label>
-                <input matInput formControlName="contact_info" placeholder="Phone number">
-              </mat-form-field>
-            </div>
-          </div>
-
-          <div *ngIf="errorMessage" class="error-message">
+          <div *ngIf="errorMessage" class="msg msg-error">
             <mat-icon>error_outline</mat-icon>
-            <span>{{ errorMessage }}</span>
+            {{ errorMessage }}
           </div>
 
-          <button mat-raised-button type="submit" [disabled]="loading || registerForm.invalid" class="register-btn">
-            <span *ngIf="!loading" class="btn-content">
-              <mat-icon>how_to_reg</mat-icon>
-              Create Account
-            </span>
-            <span *ngIf="loading" class="btn-content">
-              <mat-spinner diameter="20"></mat-spinner>
-              Creating...
+          <button
+            mat-flat-button
+            type="submit"
+            [disabled]="loading || registerForm.invalid"
+            class="sign-up-btn"
+          >
+            <span *ngIf="!loading">Create account</span>
+            <span *ngIf="loading" class="loading-state">
+              <mat-spinner diameter="18"></mat-spinner>
+              Creating account...
             </span>
           </button>
-
-          <div class="divider">
-            <span>or</span>
-          </div>
-
-          <div class="login-link">
-            <p>Already have an account?</p>
-            <a routerLink="/login" class="login-btn">
-              <mat-icon>login</mat-icon>
-              Sign In
-            </a>
-          </div>
         </form>
+
+        <div class="form-bottom">
+          <div class="separator">
+            <div class="sep-line"></div>
+            <span>or</span>
+            <div class="sep-line"></div>
+          </div>
+          <a routerLink="/login" class="sign-in-link">
+            Sign in to existing account
+          </a>
+        </div>
       </div>
     </div>
   </div>

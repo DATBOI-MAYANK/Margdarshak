@@ -73,13 +73,13 @@ import { MessageService } from '../../core/services/message.service';
   `,
   styles: [`
     .contact-dialog {
-      h2 {
+      & h2 {
         display: flex;
         align-items: center;
         gap: 12px;
         color: #333;
 
-        mat-icon {
+        & mat-icon {
           color: #667eea;
         }
       }
@@ -94,12 +94,12 @@ import { MessageService } from '../../core/services/message.service';
         margin-bottom: 16px;
       }
 
-      mat-dialog-actions button {
+      & mat-dialog-actions button {
         display: flex;
         align-items: center;
         gap: 8px;
 
-        mat-spinner {
+        & mat-spinner {
           margin-right: 8px;
         }
       }

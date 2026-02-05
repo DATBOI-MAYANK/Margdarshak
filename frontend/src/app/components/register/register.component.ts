@@ -12,6 +12,8 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   loading = false;
   errorMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -20,9 +22,9 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // If user is already logged in, redirect to itineraries
+    // If user is already logged in, redirect to new trip
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/itineraries']);
+      this.router.navigate(['/itineraries/new']);
       return;
     }
 
@@ -61,13 +63,21 @@ export class RegisterComponent implements OnInit {
     this.authService.register(registerData).subscribe({
       next: (response) => {
         this.loading = false;
-        this.router.navigate(['/itineraries']);
+        this.router.navigate(['/itineraries/new']);
       },
       error: (error) => {
         this.loading = false;
         this.errorMessage = error.error?.error || 'Registration failed. Please try again.';
       }
     });
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   get name() {

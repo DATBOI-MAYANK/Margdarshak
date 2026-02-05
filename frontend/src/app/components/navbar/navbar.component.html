@@ -3,14 +3,21 @@
     <div class="logo-icon">
       <img src="assets/logo/logo.png" alt="App Logo" class="brand-logo" />
     </div>
-
-    <!--span class="app-title">Voyage.IQ</span-->
-    <span class="tagline">Journey Planner</span>
   </div>
 
   <span class="spacer"></span>
 
   <div *ngIf="isLoggedIn" class="nav-actions">
+    <button
+      mat-button
+      routerLink="/itineraries/new"
+      routerLinkActive="active"
+      class="nav-btn create-btn"
+    >
+      <mat-icon>add_location_alt</mat-icon>
+      <span>New Trip</span>
+    </button>
+
     <button
       mat-button
       routerLink="/itineraries"
@@ -20,16 +27,6 @@
     >
       <mat-icon>map</mat-icon>
       <span>My Trips</span>
-    </button>
-
-    <button
-      mat-button
-      routerLink="/itineraries/new"
-      routerLinkActive="active"
-      class="nav-btn create-btn"
-    >
-      <mat-icon>add_location_alt</mat-icon>
-      <span>New Trip</span>
     </button>
 
     <button
@@ -107,6 +104,10 @@
         </span>
       </div>
       <mat-divider></mat-divider>
+      <button mat-menu-item (click)="navigateTo('/itineraries')">
+        <mat-icon>luggage</mat-icon>
+        My Itineraries
+      </button>
       <button mat-menu-item routerLink="/profile">
         <mat-icon>account_circle</mat-icon>
         My Profile

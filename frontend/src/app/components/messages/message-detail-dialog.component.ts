@@ -95,7 +95,7 @@ import { MessageService, Message } from '../../core/services/message.service';
         gap: 16px;
         padding: 16px;
 
-        mat-icon {
+        & mat-icon {
           font-size: 40px;
           width: 40px;
           height: 40px;
@@ -121,7 +121,7 @@ import { MessageService, Message } from '../../core/services/message.service';
         .header-content {
           flex: 1;
 
-          h2 {
+          & h2 {
             margin: 0 0 8px 0;
             font-size: 1.3rem;
           }
@@ -159,7 +159,7 @@ import { MessageService, Message } from '../../core/services/message.service';
       .thread-section {
         margin-top: 24px;
 
-        h4 {
+        & h4 {
           color: #666;
           margin-bottom: 16px;
         }
@@ -204,7 +204,7 @@ import { MessageService, Message } from '../../core/services/message.service';
             }
           }
 
-          p {
+          & p {
             margin: 0;
             color: #333;
           }
@@ -215,7 +215,7 @@ import { MessageService, Message } from '../../core/services/message.service';
         margin-top: 24px;
         padding-top: 16px;
 
-        h4 {
+        & h4 {
           color: #666;
           margin: 16px 0;
         }
@@ -224,7 +224,7 @@ import { MessageService, Message } from '../../core/services/message.service';
           width: 100%;
         }
 
-        button {
+        & button {
           display: flex;
           align-items: center;
           gap: 8px;

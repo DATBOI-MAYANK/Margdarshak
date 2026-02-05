@@ -191,14 +191,14 @@ import { Itinerary } from '../../models/itinerary.model';
         min-width: auto;
       }
       
-      h2 {
+      & h2 {
         display: flex;
         align-items: center;
         gap: 10px;
         color: #1e3c72;
         margin: 0;
         
-        mat-icon {
+        & mat-icon {
           color: #667eea;
         }
       }
@@ -224,14 +224,14 @@ import { Itinerary } from '../../models/itinerary.model';
         color: #667eea;
       }
       
-      h3 {
+      & h3 {
         margin: 0;
         font-size: 1.2rem;
         color: #1e3c72;
         text-transform: capitalize;
       }
       
-      p {
+      & p {
         margin: 4px 0 0;
         color: #666;
         font-size: 0.9rem;
@@ -242,7 +242,7 @@ import { Itinerary } from '../../models/itinerary.model';
       margin: 16px 0;
     }
     
-    h4 {
+    & h4 {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -250,7 +250,7 @@ import { Itinerary } from '../../models/itinerary.model';
       color: #333;
       margin: 16px 0 12px;
       
-      mat-icon {
+      & mat-icon {
         color: #667eea;
         font-size: 20px;
         width: 20px;
@@ -273,7 +273,7 @@ import { Itinerary } from '../../models/itinerary.model';
         width: 140px;
       }
       
-      button {
+      & button {
         height: 56px;
         white-space: nowrap;
       }
@@ -284,14 +284,14 @@ import { Itinerary } from '../../models/itinerary.model';
       padding: 20px;
       color: #888;
       
-      mat-icon {
+      & mat-icon {
         font-size: 40px;
         width: 40px;
         height: 40px;
         color: #ccc;
       }
       
-      p {
+      & p {
         margin: 8px 0 0;
       }
     }
@@ -310,7 +310,7 @@ import { Itinerary } from '../../models/itinerary.model';
         align-items: center;
         justify-content: center;
         
-        mat-icon {
+        & mat-icon {
           color: white;
         }
       }
@@ -338,7 +338,7 @@ import { Itinerary } from '../../models/itinerary.model';
           color: #666;
         }
         
-        button {
+        & button {
           white-space: nowrap;
         }
       }
@@ -350,7 +350,7 @@ import { Itinerary } from '../../models/itinerary.model';
         justify-content: center;
         padding: 8px 0;
         
-        button {
+        & button {
           width: 48px;
           height: 48px;
           min-width: 48px;

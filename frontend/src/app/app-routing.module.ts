@@ -64,7 +64,7 @@ const routes: Routes = [
     data: { roles: ['Admin'] }
   },
   { path: 'unauthorized', component: UnauthorizedComponent },
-  { path: '**', redirectTo: '/itineraries' }
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({

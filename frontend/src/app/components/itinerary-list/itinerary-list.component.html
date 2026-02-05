@@ -8,26 +8,74 @@
 
 <div class="itinerary-list-container">
   <div class="header">
-    <h1>My Travel Itineraries</h1>
-    <button
-      class="create-btn"
-      mat-raised-button
-      color="primary"
-      (click)="createNew()"
-    >
-      <span class="btn-text">
+    <h1>My Travel Dashboard</h1>
+  </div>
+
+  <!-- Central Call-to-Action Section -->
+  <div class="cta-section" *ngIf="!itineraries || itineraries.length === 0">
+    <div class="cta-content">
+      <div class="cta-icon">
+        <mat-icon>luggage</mat-icon>
+      </div>
+      <h2>Ready for Your Next Adventure?</h2>
+      <p>Start planning your perfect trip with our intelligent itinerary builder</p>
+      <button
+        class="plan-trip-btn"
+        mat-raised-button
+        (click)="createNew()"
+      >
+        <span class="btn-content">
+          <mat-icon>flight_takeoff</mat-icon>
+          <span class="btn-text">Plan Your Trip Now</span>
+          <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+        </span>
+      </button>
+      <div class="cta-features">
+        <div class="feature-item">
+          <mat-icon>smart_toy</mat-icon>
+          <span>AI-Powered Planning</span>
+        </div>
+        <div class="feature-item">
+          <mat-icon>group</mat-icon>
+          <span>Collaborative Sharing</span>
+        </div>
+        <div class="feature-item">
+          <mat-icon>savings</mat-icon>
+          <span>Budget Tracking</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Bar for existing itineraries -->
+  <div class="quick-actions" *ngIf="itineraries && itineraries.length > 0">
+    <div class="actions-content">
+      <div class="stats-section">
+        <div class="stat-item">
+          <span class="stat-number">{{ itineraries.length }}</span>
+          <span class="stat-label">Active Trips</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ getTotalBudget() | currency:'USD':'symbol':'1.0-0' }}</span>
+          <span class="stat-label">Total Budget</span>
+        </div>
+      </div>
+      <button
+        class="create-new-btn"
+        mat-raised-button
+        (click)="createNew()"
+      >
         <mat-icon>add</mat-icon>
-        Create New Itinerary
-      </span>
-      <mat-icon class="plane-icon">flight</mat-icon>
-    </button>
+        <span>New Trip</span>
+      </button>
+    </div>
   </div>
 
   <!-- Filters -->
-  <mat-card class="filters-card">
-    <mat-card-content>
-      <div class="filters">
-        <mat-form-field appearance="outline">
+  <div class="filters-card" *ngIf="itineraries && itineraries.length > 0">
+    <div class="filters">
+      <div class="filter-row">
+        <mat-form-field appearance="outline" class="filter-field destination-field">
           <mat-label>Destination</mat-label>
           <input
             matInput
@@ -37,7 +85,7 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="filter-field date-field">
           <mat-label>Start Date (From)</mat-label>
           <input
             matInput
@@ -51,7 +99,7 @@
           <mat-datepicker #startPicker></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="filter-field date-field">
           <mat-label>End Date (To)</mat-label>
           <input
             matInput
@@ -65,7 +113,7 @@
           <mat-datepicker #endPicker></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="filter-field budget-field">
           <mat-label>Min Budget</mat-label>
           <input
             matInput
@@ -76,7 +124,7 @@
           <span matPrefix>$&nbsp;</span>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="filter-field budget-field">
           <mat-label>Max Budget</mat-label>
           <input
             matInput
@@ -86,18 +134,27 @@
           />
           <span matPrefix>$&nbsp;</span>
         </mat-form-field>
+      </div>
 
-        <button mat-raised-button color="accent" (click)="applyFilters()">
+      <div class="filter-actions">
+        <button mat-raised-button class="apply-btn" (click)="applyFilters()">
           <mat-icon>filter_list</mat-icon>
-          Apply Filters
+          <span>Apply Filters</span>
         </button>
-        <button mat-button class="clear-filter-btn" (click)="clearFilters()">
+        <button mat-raised-button class="clear-btn" (click)="clearFilters()">
           <mat-icon>clear</mat-icon>
-          Clear
+          <span>Clear</span>
         </button>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
+
+  <!-- My Trips Section -->
+  <div class="my-trips-section" *ngIf="itineraries && itineraries.length > 0">
+    <div class="section-header">
+      <h2>My Travel Collection</h2>
+      <p>Your personalized journey archive</p>
+    </div>
 
   <!-- Loading -->
   <div *ngIf="loading" class="loading">
@@ -110,8 +167,8 @@
   </div>
 
   <!-- Itineraries Grid -->
-  <div *ngIf="!loading && itineraries.length > 0" class="itineraries-grid">
-    <mat-card
+  <div class="itineraries-grid">
+    <div
       *ngFor="let itinerary of itineraries"
       class="itinerary-card"
       [class.shared-itinerary]="itinerary.role === 'collaborator'"
@@ -121,94 +178,90 @@
         <mat-icon>chat_bubble</mat-icon>
         <span>{{ getUnreadCount(itinerary.id) }}</span>
       </div>
+      
       <!-- Shared Badge -->
       <div *ngIf="itinerary.role === 'collaborator'" class="shared-badge">
         <mat-icon>group</mat-icon>
-        Shared by {{ itinerary.owner_name }}
+        <span>Shared by {{ itinerary.owner_name }}</span>
       </div>
 
-      <mat-card-header>
-        <mat-card-title>{{ itinerary.destination }}</mat-card-title>
-        <mat-card-subtitle>
-          {{ itinerary.start_date | date : "mediumDate" }} -
-          {{ itinerary.end_date | date : "mediumDate" }} ({{
-            getDuration(itinerary)
-          }}
-          days)
-        </mat-card-subtitle>
-      </mat-card-header>
+      <div class="card-content">
+        <div class="card-header">
+          <h2 class="destination-title">{{ itinerary.destination }}</h2>
+          <p class="date-range">
+            {{ itinerary.start_date | date : "mediumDate" }} -
+            {{ itinerary.end_date | date : "mediumDate" }}
+            <span class="duration">({{ getDuration(itinerary) }} days)</span>
+          </p>
+        </div>
 
-      <mat-card-content>
-        <div class="budget-info">
-          <strong>Budget:</strong> ${{ itinerary.budget | number : "1.2-2" }}
+        <div class="card-details">
+          <div class="detail-item">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <div class="detail-text">
+              <span class="detail-label">Budget</span>
+              <span class="detail-value">${{ itinerary.budget | number : "1.2-2" }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <mat-icon>receipt_long</mat-icon>
+            <div class="detail-text">
+              <span class="detail-label">Est. Expenses</span>
+              <span class="detail-value">${{ calculateTotalExpenses(itinerary) | number : "1.2-2" }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <mat-icon>event_note</mat-icon>
+            <div class="detail-text">
+              <span class="detail-label">Activities</span>
+              <span class="detail-value">{{ itinerary.activities?.length || 0 }}</span>
+            </div>
+          </div>
         </div>
-        <div class="expenses-info">
-          <strong>Estimated Expenses:</strong> ${{
-            calculateTotalExpenses(itinerary) | number : "1.2-2"
-          }}
-        </div>
-        <div class="activities-info">
-          <strong>Activities:</strong> {{ itinerary.activities?.length || 0 }}
-        </div>
-        <div *ngIf="itinerary.notes" class="notes-preview">
-          <strong>Notes:</strong> {{ itinerary.notes.substring(0, 100)
-          }}{{ itinerary.notes.length > 100 ? "..." : "" }}
-        </div>
+
         <!-- Permission indicator for shared itineraries -->
         <div
           *ngIf="itinerary.role === 'collaborator'"
           class="permission-indicator"
         >
-          <mat-chip
-            [class.edit-permission]="itinerary.collab_permission === 'edit'"
-            [class.view-permission]="itinerary.collab_permission !== 'edit'"
-          >
-            <mat-icon>{{
-              itinerary.collab_permission === "edit" ? "edit" : "visibility"
-            }}</mat-icon>
-            {{
-              itinerary.collab_permission === "edit" ? "Can Edit" : "View Only"
-            }}
-          </mat-chip>
+          <span class="permission-chip" [class.can-edit]="itinerary.collab_permission === 'edit'">
+            <mat-icon>{{ itinerary.collab_permission === "edit" ? "edit" : "visibility" }}</mat-icon>
+            {{ itinerary.collab_permission === "edit" ? "Can Edit" : "View Only" }}
+          </span>
         </div>
-      </mat-card-content>
+      </div>
 
-      <mat-card-actions>
-        <button mat-button color="primary" (click)="viewDetails(itinerary.id)">
+      <div class="card-actions">
+        <button class="action-btn view-btn" (click)="viewDetails(itinerary.id)">
           <mat-icon>visibility</mat-icon>
-          View
+          <span>View</span>
         </button>
         <button
-          mat-button
-          color="accent"
+          class="action-btn edit-btn"
           (click)="editItinerary(itinerary.id)"
-          *ngIf="
-            itinerary.role === 'owner' || itinerary.collab_permission === 'edit'
-          "
+          *ngIf="itinerary.role === 'owner' || itinerary.collab_permission === 'edit'"
         >
           <mat-icon>edit</mat-icon>
-          Edit
+          <span>Edit</span>
         </button>
         <button
-          mat-button
-          color="primary"
+          class="action-btn share-btn"
           (click)="shareItinerary(itinerary)"
           *ngIf="itinerary.role === 'owner'"
         >
           <mat-icon>share</mat-icon>
-          Share
+          <span>Share</span>
         </button>
         <button
-          mat-button
-          color="warn"
+          class="action-btn delete-btn"
           (click)="deleteItinerary(itinerary.id)"
           *ngIf="itinerary.role === 'owner'"
         >
           <mat-icon>delete</mat-icon>
-          Delete
+          <span>Delete</span>
         </button>
-      </mat-card-actions>
-    </mat-card>
+      </div>
+    </div>
   </div>
 
   <!-- No Results -->
@@ -219,6 +272,7 @@
     <button mat-raised-button color="primary" (click)="createNew()">
       Create Itinerary
     </button>
+  </div>
   </div>
 </div>
 <!-- ================= HELP CHATBOT ================= -->
@@ -273,5 +327,5 @@
 
 <!-- Floating Chatbot Button (OUTSIDE backdrop) -->
 <div class="help-bot-fab" (click)="toggleBot()">
-  <img src="assets/icons/itinerary/chatbot.svg" />
+  <mat-icon>support_agent</mat-icon>
 </div>

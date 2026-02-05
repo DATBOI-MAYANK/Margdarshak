@@ -14,6 +14,11 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   returnUrl = '';
+  showPassword = false;
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -28,7 +33,7 @@ export class LoginComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/itineraries';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/itineraries/new';
     
     // Check if user was redirected due to session expiry
     const reason = this.route.snapshot.queryParams['reason'];

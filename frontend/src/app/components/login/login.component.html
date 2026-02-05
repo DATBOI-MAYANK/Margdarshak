@@ -1,178 +1,142 @@
 <div class="login-page">
-  <!-- Animated Background -->
-  <div class="bg-shapes">
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
-    <div class="shape shape-4"></div>
-  </div>
-
-  <!-- Floating Travel Elements -->
-  <div class="floating-elements">
-    <mat-icon class="float-icon icon-1">flight</mat-icon>
-    <mat-icon class="float-icon icon-2">public</mat-icon>
-    <mat-icon class="float-icon icon-3">luggage</mat-icon>
-    <mat-icon class="float-icon icon-4">beach_access</mat-icon>
-  </div>
-
-  <div class="login-wrapper">
-    <!-- Left Side - Branding -->
-    <div class="branding-section">
-      <!-- Animated Background Pattern -->
-      <div class="brand-pattern">
-        <div class="pattern-line"></div>
-        <div class="pattern-line"></div>
-        <div class="pattern-line"></div>
-      </div>
-
+  <div class="login-card">
+    <!-- Left - Brand Side -->
+    <div class="brand-side">
       <div class="brand-content">
-        <!-- Logo with Glow Effect -->
-        <div class="logo-container">
-          <div class="logo-glow"></div>
-          <div class="logo-icon">
-            <img
-              src="assets/logo/logo1.png"
-              alt="App Logo"
-              class="brand-logo"
-            />
+        <div class="brand-top">
+          <div class="logo-box">
+            <img src="assets/logo/logo1.png" alt="Voyage.IQ" class="logo-img" />
+          </div>
+          <div>
+            <h1 class="app-name">Voyage<span class="dot">.IQ</span></h1>
+            <p class="app-desc">Plan smarter. Travel better.</p>
           </div>
         </div>
 
-        <!-- Animated Title -->
-        <div class="brand-title">
-          <h1 class="title-main">
-            <span class="letter" style="--delay: 0">V</span>
-            <span class="letter" style="--delay: 1">o</span>
-            <span class="letter" style="--delay: 2">y</span>
-            <span class="letter" style="--delay: 3">a</span>
-            <span class="letter" style="--delay: 4">g</span>
-            <span class="letter" style="--delay: 5">e</span>
-            <span class="letter" style="--delay: 6">.IQ</span>
-          </h1>
-          <p class="tagline">Your journey begins here</p>
-        </div>
-
-        <!-- Animated Feature List -->
-        <div class="features">
-          <div class="feature" style="--index: 0">
-            <div class="feature-icon-wrap">
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon-box">
               <mat-icon>flight_takeoff</mat-icon>
             </div>
-            <span>Plan Amazing Trips</span>
-          </div>
-          <div class="feature" style="--index: 1">
-            <div class="feature-icon-wrap">
-              <mat-icon>account_balance_wallet</mat-icon>
+            <div>
+              <p class="feature-title">Smart Itineraries</p>
+              <p class="feature-sub">AI-powered trip planning tailored to you</p>
             </div>
-            <span>Track Your Budget</span>
           </div>
-          <div class="feature" style="--index: 2">
-            <div class="feature-icon-wrap">
-              <mat-icon>wb_sunny</mat-icon>
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>savings</mat-icon>
             </div>
-            <span>Live Weather Updates</span>
+            <div>
+              <p class="feature-title">Budget Control</p>
+              <p class="feature-sub">Track expenses and stay within budget</p>
+            </div>
           </div>
-          <div class="feature" style="--index: 3">
-            <div class="feature-icon-wrap">
-              <mat-icon>place</mat-icon>
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>cloud_queue</mat-icon>
             </div>
-            <span>Discover New Places</span>
+            <div>
+              <p class="feature-title">Weather Aware</p>
+              <p class="feature-sub">Real-time forecasts for every destination</p>
+            </div>
           </div>
         </div>
 
-        <!-- Decorative Bottom Line -->
-        <div class="brand-footer">
-          <div class="footer-line"></div>
-          <span>Trusted by travelers worldwide</span>
+        <div class="brand-bottom">
+          <div class="review-row">
+            <div class="stars">
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star_half</mat-icon>
+            </div>
+            <span class="rating-text">4.8 / 5</span>
+          </div>
+          <p class="trust-text">Trusted by 10,000+ travelers</p>
         </div>
       </div>
     </div>
 
-    <!-- Right Side - Login Form -->
-    <div class="form-section">
-      <div class="login-card">
-        <div class="card-header">
-          <h2>Welcome Back!</h2>
-          <p>Sign in to continue your adventure</p>
+    <!-- Right - Form Side -->
+    <div class="form-side">
+      <div class="form-content">
+        <div class="form-top">
+          <h2>Welcome back</h2>
+          <p>Enter your credentials to access your account</p>
         </div>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <div class="input-group">
-            <mat-icon class="input-icon">email</mat-icon>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email Address</mat-label>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" autocomplete="off">
+          <div class="form-field">
+            <label for="email">Email</label>
+            <mat-form-field appearance="outline" class="w-full">
               <input
                 matInput
+                id="email"
                 type="email"
                 formControlName="email"
-                placeholder="Enter your email"
+                placeholder="name@example.com"
               />
-              <mat-error *ngIf="email?.hasError('required')"
-                >Email is required</mat-error
-              >
-              <mat-error *ngIf="email?.hasError('email')"
-                >Invalid email format</mat-error
-              >
+              <mat-error *ngIf="email?.hasError('required')">Email is required</mat-error>
+              <mat-error *ngIf="email?.hasError('email')">Enter a valid email</mat-error>
             </mat-form-field>
           </div>
 
-          <div class="input-group">
-            <mat-icon class="input-icon">lock</mat-icon>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
-              <input
-                matInput
-                type="password"
-                formControlName="password"
-                placeholder="Enter your password"
-              />
-              <mat-error *ngIf="password?.hasError('required')"
-                >Password is required</mat-error
-              >
-              <mat-error *ngIf="password?.hasError('minlength')"
-                >Password must be at least 6 characters</mat-error
-              >
-            </mat-form-field>
+          <div class="form-field">
+            <label for="password">Password</label>
+            <div class="password-field">
+              <mat-form-field appearance="outline" class="w-full">
+                <input
+                  matInput
+                  id="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Enter your password"
+                />
+                <mat-error *ngIf="password?.hasError('required')">Password is required</mat-error>
+                <mat-error *ngIf="password?.hasError('minlength')">At least 6 characters</mat-error>
+              </mat-form-field>
+              <button type="button" class="eye-btn" (click)="togglePassword()" tabindex="-1">
+                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
           </div>
 
-          <div *ngIf="errorMessage" class="error-message">
+          <div *ngIf="errorMessage" class="msg msg-error">
             <mat-icon>error_outline</mat-icon>
-            <span>{{ errorMessage }}</span>
+            {{ errorMessage }}
           </div>
 
-          <div *ngIf="successMessage" class="success-message">
-            <mat-icon>check_circle</mat-icon>
-            <span>{{ successMessage }}</span>
+          <div *ngIf="successMessage" class="msg msg-success">
+            <mat-icon>check_circle_outline</mat-icon>
+            {{ successMessage }}
           </div>
 
           <button
-            mat-raised-button
+            mat-flat-button
             type="submit"
             [disabled]="loading || loginForm.invalid"
-            class="login-btn"
+            class="sign-in-btn"
           >
-            <span *ngIf="!loading" class="btn-content">
-              <mat-icon>login</mat-icon>
-              Sign In
-            </span>
-            <span *ngIf="loading" class="btn-content">
-              <mat-spinner diameter="20"></mat-spinner>
+            <span *ngIf="!loading">Sign in</span>
+            <span *ngIf="loading" class="loading-state">
+              <mat-spinner diameter="18"></mat-spinner>
               Signing in...
             </span>
           </button>
-
-          <div class="divider">
-            <span>or</span>
-          </div>
-
-          <div class="register-link">
-            <p>Don't have an account?</p>
-            <a routerLink="/register" class="register-btn">
-              <mat-icon>person_add</mat-icon>
-              Create Account
-            </a>
-          </div>
         </form>
+
+        <div class="form-bottom">
+          <div class="separator">
+            <div class="sep-line"></div>
+            <span>or</span>
+            <div class="sep-line"></div>
+          </div>
+          <a routerLink="/register" class="create-account-btn">
+            Create an account
+          </a>
+        </div>
       </div>
     </div>
   </div>

@@ -363,10 +363,10 @@ export class MessageController {
       const { status = 'all' } = req.query;
 
       let statusFilter = '';
-      if (status === 'pending') {
+      if (status === 'pending' || status === 'unread') {
         statusFilter = "AND m.status = 'pending'";
-      } else if (status === 'read') {
-        statusFilter = "AND m.status IN ('read', 'resolved')";
+      } else if (status === 'read' || status === 'resolved') {
+        statusFilter = "AND m.status IN ('read', 'resolved', 'closed')";
       }
 
       const query = `

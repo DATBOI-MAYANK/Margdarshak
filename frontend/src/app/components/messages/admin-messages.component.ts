@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -35,7 +34,6 @@ import { User } from '../../models/user.model';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatListModule,
     MatChipsModule,
     MatBadgeModule,
     MatProgressSpinnerModule,
@@ -112,30 +110,30 @@ import { User } from '../../models/user.model';
             <div class="tab-content">
               <!-- Stats -->
               <div class="stats-row" *ngIf="stats">
-                <div class="stat-item">
+                <div class="stat-item" (click)="ticketFilter = 'all'; loadTickets()" [class.active-filter]="ticketFilter === 'all'">
                   <mat-icon>inbox</mat-icon>
                   <span class="stat-value">{{ stats.total }}</span>
                   <span class="stat-label">Total</span>
                 </div>
-                <div class="stat-item pending">
-                  <mat-icon>pending</mat-icon>
+                <div class="stat-item pending" (click)="ticketFilter = 'pending'; loadTickets()" [class.active-filter]="ticketFilter === 'pending'">
+                  <mat-icon>schedule</mat-icon>
                   <span class="stat-value">{{ stats.pending }}</span>
                   <span class="stat-label">Pending</span>
                 </div>
-                <div class="stat-item resolved">
+                <div class="stat-item resolved" (click)="ticketFilter = 'read'; loadTickets()" [class.active-filter]="ticketFilter === 'read'">
                   <mat-icon>check_circle</mat-icon>
                   <span class="stat-value">{{ stats.resolved }}</span>
                   <span class="stat-label">Resolved</span>
                 </div>
               </div>
 
-              <!-- Filter -->
+              <!-- Filter & Refresh -->
               <div class="filter-row">
                 <mat-form-field appearance="outline">
                   <mat-label>Filter</mat-label>
                   <mat-select [(ngModel)]="ticketFilter" (selectionChange)="loadTickets()">
                     <mat-option value="all">All Tickets</mat-option>
-                    <mat-option value="unread">Pending</mat-option>
+                    <mat-option value="pending">Pending</mat-option>
                     <mat-option value="read">Resolved</mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -149,29 +147,43 @@ import { User } from '../../models/user.model';
               </div>
 
               <div *ngIf="!loadingTickets && tickets.length === 0" class="empty-state">
-                <mat-icon>check_circle</mat-icon>
-                <p>No support tickets</p>
+                <mat-icon>{{ ticketFilter === 'pending' ? 'thumb_up' : 'check_circle' }}</mat-icon>
+                <p>{{ ticketFilter === 'pending' ? 'No pending tickets — all caught up!' : 'No tickets found' }}</p>
               </div>
 
-              <mat-list *ngIf="!loadingTickets && tickets.length > 0">
-                <mat-list-item *ngFor="let ticket of tickets" 
-                               [class.unread]="!ticket.is_read"
-                               (click)="openTicket(ticket)">
-                  <mat-icon matListItemIcon [class.pending]="!ticket.is_read">
-                    {{ ticket.is_read ? 'check_circle' : 'error' }}
-                  </mat-icon>
-                  <div matListItemTitle>{{ ticket.subject }}</div>
-                  <div matListItemLine class="ticket-info">
-                    <span class="sender">{{ ticket.sender_name }} ({{ ticket.sender_email }})</span>
+              <div *ngIf="!loadingTickets && tickets.length > 0" class="ticket-list">
+                <div *ngFor="let ticket of tickets" 
+                     class="ticket-card"
+                     [class.ticket-pending]="ticket.status === 'pending'"
+                     [class.ticket-read]="ticket.status === 'read'"
+                     [class.ticket-resolved]="ticket.status === 'resolved' || ticket.status === 'closed'"
+                     (click)="openTicket(ticket)">
+                  <div class="ticket-status-bar"></div>
+                  <div class="ticket-icon">
+                    <mat-icon *ngIf="ticket.status === 'pending'">error_outline</mat-icon>
+                    <mat-icon *ngIf="ticket.status === 'read'">mark_email_read</mat-icon>
+                    <mat-icon *ngIf="ticket.status === 'resolved' || ticket.status === 'closed'">check_circle</mat-icon>
                   </div>
-                  <div matListItemLine class="ticket-meta">
-                    <span class="time">{{ ticket.created_at | date:'short' }}</span>
-                    <mat-chip *ngIf="ticket.reply_count > 0" class="reply-chip">
-                      {{ ticket.reply_count }} {{ ticket.reply_count === 1 ? 'reply' : 'replies' }}
-                    </mat-chip>
+                  <div class="ticket-content">
+                    <div class="ticket-subject">{{ ticket.subject }}</div>
+                    <div class="ticket-sender">{{ ticket.sender_name }} ({{ ticket.sender_email }})</div>
+                    <div class="ticket-bottom">
+                      <span class="ticket-time">{{ ticket.created_at | date:'short' }}</span>
+                      <span class="status-badge" [class]="'status-' + ticket.status">
+                        {{ ticket.status === 'pending' ? 'Pending' : ticket.status === 'read' ? 'Replied' : 'Resolved' }}
+                      </span>
+                      <mat-chip *ngIf="ticket.reply_count > 0" class="reply-chip">
+                        {{ ticket.reply_count }} {{ ticket.reply_count === 1 ? 'reply' : 'replies' }}
+                      </mat-chip>
+                    </div>
                   </div>
-                </mat-list-item>
-              </mat-list>
+                  <button mat-icon-button class="resolve-btn"
+                          *ngIf="ticket.status !== 'resolved' && ticket.status !== 'closed'"
+                          (click)="quickResolve(ticket, $event)" matTooltip="Mark as Resolved">
+                    <mat-icon>done_all</mat-icon>
+                  </button>
+                </div>
+              </div>
             </div>
           </mat-tab>
 
@@ -330,7 +342,7 @@ import { User } from '../../models/user.model';
 
     .stats-row {
       display: flex;
-      gap: 24px;
+      gap: 16px;
       margin-bottom: 24px;
 
       .stat-item {
@@ -340,6 +352,20 @@ import { User } from '../../models/user.model';
         padding: 16px 24px;
         background: #f5f5f5;
         border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+        min-width: 100px;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        &.active-filter {
+          border-color: #667eea;
+          box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+        }
 
         & mat-icon {
           font-size: 28px;
@@ -405,44 +431,135 @@ import { User } from '../../models/user.model';
       }
     }
 
-    mat-list-item {
-      cursor: pointer;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      transition: background 0.2s;
-
-      &:hover {
-        background: #f5f5f5;
-      }
-
-      &.unread {
-        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-        border-left: 4px solid #ff9800;
-      }
-
-      & mat-icon.pending {
-        color: #ff9800;
-      }
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .ticket-info {
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    .ticket-meta {
+    .ticket-card {
       display: flex;
       align-items: center;
-      gap: 12px;
-      color: #999;
-      font-size: 0.8rem;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      background: white;
+
+      &:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+      }
+
+      &.ticket-pending {
+        border-left: 4px solid #ff9800;
+        background: linear-gradient(135deg, #fff8e1 0%, #fff3e0 100%);
+
+        .ticket-icon mat-icon { color: #ff9800; }
+      }
+
+      &.ticket-read {
+        border-left: 4px solid #2196f3;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #e3f2fd 100%);
+
+        .ticket-icon mat-icon { color: #2196f3; }
+      }
+
+      &.ticket-resolved {
+        border-left: 4px solid #4caf50;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #e8f5e9 100%);
+
+        .ticket-icon mat-icon { color: #4caf50; }
+      }
+    }
+
+    .ticket-icon {
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .ticket-content {
+      flex: 1;
+      min-width: 0;
+
+      .ticket-subject {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 4px;
+      }
+
+      .ticket-sender {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 6px;
+      }
+
+      .ticket-bottom {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .ticket-time {
+          font-size: 0.8rem;
+          color: #999;
+        }
+      }
+    }
+
+    .status-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &.status-pending {
+        background: #fff3e0;
+        color: #e65100;
+        border: 1px solid #ffcc80;
+      }
+
+      &.status-read {
+        background: #e3f2fd;
+        color: #1565c0;
+        border: 1px solid #90caf9;
+      }
+
+      &.status-resolved, &.status-closed {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+      }
     }
 
     .reply-chip {
       font-size: 0.7rem !important;
       min-height: 20px !important;
-      background: #e3f2fd !important;
-      color: #1976d2 !important;
+      background: #ede7f6 !important;
+      color: #5e35b1 !important;
+    }
+
+    .resolve-btn {
+      color: #4caf50;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 1;
+      }
     }
   `]
 })
@@ -559,21 +676,36 @@ export class AdminMessagesComponent implements OnInit {
       subject: ticket.subject,
       content: ticket.content,
       priority: 'normal' as const,
-      is_read: ticket.is_read,
+      is_read: ticket.status !== 'pending',
       is_broadcast: false,
       parent_id: null,
       created_at: ticket.created_at,
       sender_name: ticket.sender_name,
-      sender_email: ticket.sender_email
+      sender_email: ticket.sender_email,
+      status: ticket.status
     };
 
     const dialogRef = this.dialog.open(MessageDetailDialogComponent, {
-      width: '600px',
-      data: { message, isAdmin: true }
+      width: '650px',
+      maxHeight: '90vh',
+      data: { message, isAdmin: true, ticketStatus: ticket.status }
     });
 
     dialogRef.afterClosed().subscribe(() => {
       this.loadTickets();
+    });
+  }
+
+  quickResolve(ticket: SupportTicket, event: MouseEvent): void {
+    event.stopPropagation();
+    this.messageService.resolveTicket(ticket.id).subscribe({
+      next: () => {
+        this.snackBar.open('Ticket marked as resolved', 'Close', { duration: 3000 });
+        this.loadTickets();
+      },
+      error: () => {
+        this.snackBar.open('Failed to resolve ticket', 'Close', { duration: 3000 });
+      }
     });
   }
 }

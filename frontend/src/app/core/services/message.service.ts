@@ -39,6 +39,7 @@ export interface SupportTicket {
   sender_id: number;
   subject: string;
   content: string;
+  status: string;
   is_read: boolean;
   created_at: Date;
   sender_name: string;
@@ -178,9 +179,17 @@ export class MessageService {
     });
   }
 
-  replySupportMessage(messageId: number, content: string): Observable<{ message: string; replyId: number }> {
-    return this.http.post<{ message: string; replyId: number }>(`${this.apiUrl}/support/${messageId}/reply`, {
-      content
+  replySupportMessage(messageId: number, content: string, resolve: boolean = false): Observable<{ message: string; replyId: number; status: string }> {
+    return this.http.post<{ message: string; replyId: number; status: string }>(`${this.apiUrl}/support/${messageId}/reply`, {
+      content,
+      resolve
+    });
+  }
+
+  resolveTicket(messageId: number): Observable<{ message: string; status: string }> {
+    return this.http.post<{ message: string; status: string }>(`${this.apiUrl}/support/${messageId}/reply`, {
+      content: 'Ticket resolved.',
+      resolve: true
     });
   }
 

@@ -17,142 +17,150 @@
         <!-- Basic Information -->
         <h3>Basic Information</h3>
 
-        <!-- Source Location Section -->
-        <div class="source-section">
-          <div class="source-row">
-            <mat-form-field
-              appearance="outline"
-              class="full-width source-display-field"
-              *ngIf="sourceMode === 'current'"
-            >
-              <mat-label>Starting From</mat-label>
-              <input
-                matInput
-                [value]="sourceLocationName || 'Detecting location...'"
-                readonly
-              />
-              <div matSuffix class="source-suffix">
-                <button
-                  mat-icon-button
-                  type="button"
-                  class="source-action-btn"
-                  (click)="refreshSourceLocation(); $event.stopPropagation()"
-                  [disabled]="isRefreshingSource"
-                  title="Refresh location"
-                >
-                  <mat-icon [class.spin-icon]="isRefreshingSource">my_location</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  type="button"
-                  class="source-action-btn"
-                  (click)="setSourceMode('custom'); $event.stopPropagation()"
-                  title="Enter custom location"
-                >
-                  <mat-icon>edit</mat-icon>
-                </button>
-              </div>
-              <mat-hint>
-                <span class="live-indicator" *ngIf="sourceLocationName">
-                  <span class="live-dot"></span> Live
-                </span>
-                <span *ngIf="!sourceLocationName">Detecting your GPS location...</span>
-              </mat-hint>
-            </mat-form-field>
+        <!-- Route Layout -->
+        <div class="route-layout">
+          <!-- Left: visual track -->
+          <div class="route-track">
+            <span class="track-dot track-dot--origin"></span>
+            <span class="track-line"></span>
+            <mat-icon class="track-arrow">arrow_downward</mat-icon>
+            <span class="track-line"></span>
+            <span class="track-dot track-dot--dest"></span>
+          </div>
 
+          <!-- Right: fields -->
+          <div class="route-fields">
+            <!-- Source Location Section -->
+            <div class="source-section">
+              <div class="source-row">
+                <mat-form-field
+                  appearance="outline"
+                  class="full-width source-display-field"
+                  *ngIf="sourceMode === 'current'"
+                >
+                  <mat-label>Starting From</mat-label>
+                  <input
+                    matInput
+                    [value]="sourceLocationName || 'Detecting location...'"
+                    readonly
+                  />
+                  <div matSuffix class="source-suffix">
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="source-action-btn"
+                      (click)="refreshSourceLocation(); $event.stopPropagation()"
+                      [disabled]="isRefreshingSource"
+                      title="Refresh location"
+                    >
+                      <mat-icon [class.spin-icon]="isRefreshingSource">my_location</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="source-action-btn"
+                      (click)="setSourceMode('custom'); $event.stopPropagation()"
+                      title="Enter custom location"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
+                  <mat-hint>
+                    <span class="live-indicator" *ngIf="sourceLocationName">
+                      <span class="live-dot"></span> Live
+                    </span>
+                    <span *ngIf="!sourceLocationName">Detecting your GPS location...</span>
+                  </mat-hint>
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  class="full-width source-display-field"
+                  *ngIf="sourceMode === 'custom'"
+                >
+                  <mat-label>Starting From</mat-label>
+                  <input
+                    matInput
+                    [formControl]="sourceControl"
+                    placeholder="Type a city or location..."
+                    [matAutocomplete]="sourceAuto"
+                  />
+                  <div matSuffix class="source-suffix">
+                    <mat-spinner
+                      *ngIf="isSourceSearching"
+                      diameter="20"
+                      class="search-spinner"
+                    ></mat-spinner>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="source-action-btn"
+                      *ngIf="!isSourceSearching"
+                      (click)="setSourceMode('current'); $event.stopPropagation()"
+                      title="Use current location"
+                    >
+                      <mat-icon>gps_fixed</mat-icon>
+                    </button>
+                  </div>
+                  <mat-autocomplete
+                    #sourceAuto="matAutocomplete"
+                    class="destination-autocomplete"
+                    (optionSelected)="onSourceSelected($event)"
+                  >
+                    <mat-option
+                      *ngFor="let city of filteredSourceCities | async"
+                      [value]="city"
+                    >
+                      <mat-icon class="location-icon">location_on</mat-icon>
+                      <span class="city-name">{{ city }}</span>
+                    </mat-option>
+                  </mat-autocomplete>
+                  <mat-hint>Search for your starting location</mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Destination -->
             <mat-form-field
               appearance="outline"
-              class="full-width source-display-field"
-              *ngIf="sourceMode === 'custom'"
+              class="full-width destination-field"
             >
-              <mat-label>Starting From</mat-label>
+              <mat-label>Destination</mat-label>
               <input
                 matInput
-                [formControl]="sourceControl"
-                placeholder="Type a city or location..."
-                [matAutocomplete]="sourceAuto"
+                formControlName="destination"
+                placeholder="Type a city or country..."
+                [matAutocomplete]="auto"
               />
-              <div matSuffix class="source-suffix">
-                <mat-spinner
-                  *ngIf="isSourceSearching"
-                  diameter="20"
-                  class="search-spinner"
-                ></mat-spinner>
-                <button
-                  mat-icon-button
-                  type="button"
-                  class="source-action-btn"
-                  *ngIf="!isSourceSearching"
-                  (click)="setSourceMode('current'); $event.stopPropagation()"
-                  title="Use current location"
-                >
-                  <mat-icon>gps_fixed</mat-icon>
-                </button>
-              </div>
+              <mat-icon matSuffix class="search-icon" *ngIf="!isSearching">travel_explore</mat-icon>
+              <mat-spinner
+                matSuffix
+                *ngIf="isSearching"
+                diameter="20"
+                class="search-spinner"
+              ></mat-spinner>
               <mat-autocomplete
-                #sourceAuto="matAutocomplete"
+                #auto="matAutocomplete"
                 class="destination-autocomplete"
-                (optionSelected)="onSourceSelected($event)"
+                (optionSelected)="onDestinationSelected($event)"
               >
                 <mat-option
-                  *ngFor="let city of filteredSourceCities | async"
+                  *ngFor="let city of filteredCities | async"
                   [value]="city"
                 >
                   <mat-icon class="location-icon">location_on</mat-icon>
                   <span class="city-name">{{ city }}</span>
                 </mat-option>
               </mat-autocomplete>
-              <mat-hint>Search for your starting location</mat-hint>
+              <mat-hint>Start typing to search cities worldwide</mat-hint>
+              <mat-error
+                *ngIf="itineraryForm.get('destination')?.hasError('required')"
+              >
+                Destination is required
+              </mat-error>
             </mat-form-field>
           </div>
         </div>
-
-        <div class="field-divider">
-          <span class="divider-dot"></span>
-          <span class="divider-dot"></span>
-          <mat-icon class="divider-arrow">south</mat-icon>
-          <span class="divider-dot"></span>
-          <span class="divider-dot"></span>
-        </div>
-
-        <mat-form-field
-          appearance="outline"
-          class="full-width destination-field"
-        >
-          <mat-label>Destination</mat-label>
-          <input
-            matInput
-            formControlName="destination"
-            placeholder="Type a city or country..."
-            [matAutocomplete]="auto"
-          />
-          <mat-icon matSuffix class="search-icon" *ngIf="!isSearching">travel_explore</mat-icon>
-          <mat-spinner
-            matSuffix
-            *ngIf="isSearching"
-            diameter="20"
-            class="search-spinner"
-          ></mat-spinner>
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            class="destination-autocomplete"
-            (optionSelected)="onDestinationSelected($event)"
-          >
-            <mat-option
-              *ngFor="let city of filteredCities | async"
-              [value]="city"
-            >
-              <mat-icon class="location-icon">location_on</mat-icon>
-              <span class="city-name">{{ city }}</span>
-            </mat-option>
-          </mat-autocomplete>
-          <mat-hint>Start typing to search cities worldwide</mat-hint>
-          <mat-error
-            *ngIf="itineraryForm.get('destination')?.hasError('required')"
-          >
-            Destination is required
-          </mat-error>
-        </mat-form-field>
 
         <!-- Destination Map -->
         <div class="map-section">

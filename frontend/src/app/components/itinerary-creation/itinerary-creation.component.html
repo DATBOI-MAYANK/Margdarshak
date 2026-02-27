@@ -17,6 +17,104 @@
         <!-- Basic Information -->
         <h3>Basic Information</h3>
 
+        <!-- Source Location Section -->
+        <div class="source-section">
+          <div class="source-header">
+            <div class="source-label">
+              <mat-icon>trip_origin</mat-icon>
+              <span>Starting From</span>
+            </div>
+            <div class="source-toggle">
+              <button
+                type="button"
+                class="toggle-chip"
+                [class.active]="sourceMode === 'current'"
+                (click)="setSourceMode('current')"
+              >
+                <mat-icon>my_location</mat-icon>
+                <span>Current Location</span>
+              </button>
+              <button
+                type="button"
+                class="toggle-chip"
+                [class.active]="sourceMode === 'custom'"
+                (click)="setSourceMode('custom')"
+              >
+                <mat-icon>edit_location_alt</mat-icon>
+                <span>Custom Location</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Current Location Display -->
+          <div class="current-location-card" *ngIf="sourceMode === 'current'">
+            <div class="location-pulse"></div>
+            <div class="location-details">
+              <span class="location-status">
+                <span class="live-dot"></span>
+                {{ sourceLocationName ? 'Live Location' : 'Detecting...' }}
+              </span>
+              <span class="location-name">{{ sourceLocationName || 'Fetching your location...' }}</span>
+            </div>
+            <button
+              mat-icon-button
+              type="button"
+              class="refresh-location-btn"
+              (click)="refreshSourceLocation()"
+              [disabled]="isRefreshingSource"
+            >
+              <mat-icon [class.spin-icon]="isRefreshingSource">refresh</mat-icon>
+            </button>
+          </div>
+
+          <!-- Custom Location Input -->
+          <mat-form-field
+            appearance="outline"
+            class="full-width source-field"
+            *ngIf="sourceMode === 'custom'"
+          >
+            <mat-label>Source Location</mat-label>
+            <input
+              matInput
+              [formControl]="sourceControl"
+              placeholder="Type a city or location..."
+              [matAutocomplete]="sourceAuto"
+            />
+            <mat-icon matSuffix class="search-icon" *ngIf="!isSourceSearching"
+              >search</mat-icon
+            >
+            <mat-spinner
+              matSuffix
+              *ngIf="isSourceSearching"
+              diameter="20"
+              class="search-spinner"
+            ></mat-spinner>
+            <mat-autocomplete
+              #sourceAuto="matAutocomplete"
+              class="destination-autocomplete"
+              (optionSelected)="onSourceSelected($event)"
+            >
+              <mat-option
+                *ngFor="let city of filteredSourceCities | async"
+                [value]="city"
+              >
+                <mat-icon class="location-icon">location_on</mat-icon>
+                <span class="city-name">{{ city }}</span>
+              </mat-option>
+            </mat-autocomplete>
+            <mat-hint>Search for your starting location</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Route Connector -->
+        <div class="route-connector">
+          <div class="connector-line"></div>
+          <div class="connector-icon">
+            <mat-icon>arrow_downward</mat-icon>
+          </div>
+          <div class="connector-line"></div>
+        </div>
+
         <mat-form-field
           appearance="outline"
           class="full-width destination-field"
@@ -64,6 +162,9 @@
             #destinationMap
             [destinationName]="destinationControl.value || ''"
             [destinationCoords]="selectedDestinationCoords"
+            [sourceCoords]="selectedSourceCoords"
+            [sourceName]="sourceLocationName"
+            [useCustomSource]="sourceMode === 'custom'"
           >
           </app-destination-map>
         </div>

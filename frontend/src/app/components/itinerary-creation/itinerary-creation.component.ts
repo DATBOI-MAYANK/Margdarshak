@@ -19,6 +19,8 @@ import {
   switchMap,
 } from "rxjs/operators";
 import { DestinationMapComponent } from "../../shared/components/destination-map/destination-map.component";
+import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
+import { environment } from "../../../environments/environment";
 
 @Component({
   selector: "app-itinerary-creation",
@@ -38,6 +40,16 @@ export class ItineraryCreationComponent implements OnInit, OnDestroy {
   destinationControl = new FormControl("", [Validators.required]);
   isSearching = false;
   selectedDestinationCoords: [number, number] | null = null;
+
+  // Source location
+  sourceMode: 'current' | 'custom' = 'current';
+  sourceControl = new FormControl("");
+  filteredSourceCities!: Observable<string[]>;
+  isSourceSearching = false;
+  isRefreshingSource = false;
+  sourceLocationName: string = '';
+  selectedSourceCoords: [number, number] | null = null;
+  private currentLocationCoords: [number, number] | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -77,6 +89,132 @@ export class ItineraryCreationComponent implements OnInit, OnDestroy {
         );
       })
     );
+
+    // Setup source city autocomplete
+    this.filteredSourceCities = this.sourceControl.valueChanges.pipe(
+      startWith(""),
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((value) => {
+        this.isSourceSearching = true;
+        if (!value || value.length < 2) {
+          this.isSourceSearching = false;
+          return of(this.cityService.getPopularDestinations());
+        }
+        return this.cityService.searchCities(value, 15).pipe(
+          map((cities) => {
+            this.isSourceSearching = false;
+            return cities;
+          })
+        );
+      })
+    );
+
+    // Detect current location on init
+    this.detectCurrentLocation();
+  }
+
+  private detectCurrentLocation(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          this.currentLocationCoords = [
+            position.coords.longitude,
+            position.coords.latitude,
+          ];
+          if (this.sourceMode === 'current') {
+            this.selectedSourceCoords = this.currentLocationCoords;
+          }
+          // Reverse geocode to get name
+          try {
+            const response = await fetch(
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${position.coords.longitude},${position.coords.latitude}.json?access_token=${environment.mapboxToken}&types=place,locality,neighborhood`
+            );
+            const data = await response.json();
+            if (data.features && data.features.length > 0) {
+              const parts = data.features[0].place_name.split(', ');
+              this.sourceLocationName = parts.slice(0, Math.min(3, parts.length)).join(', ');
+            }
+          } catch (e) {
+            this.sourceLocationName = 'Location detected';
+          }
+        },
+        () => {
+          this.sourceLocationName = 'Could not detect location';
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }
+
+  setSourceMode(mode: 'current' | 'custom'): void {
+    this.sourceMode = mode;
+    if (mode === 'current') {
+      this.selectedSourceCoords = this.currentLocationCoords;
+      // Update the map to use current location
+      if (this.destinationMap && this.currentLocationCoords) {
+        this.destinationMap.updateSource(this.sourceLocationName, this.currentLocationCoords);
+      }
+    } else {
+      // If custom mode and we have a previously selected custom source, keep it
+      if (!this.selectedSourceCoords || this.selectedSourceCoords === this.currentLocationCoords) {
+        this.selectedSourceCoords = null;
+        this.sourceLocationName = '';
+      }
+    }
+  }
+
+  refreshSourceLocation(): void {
+    this.isRefreshingSource = true;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          this.currentLocationCoords = [
+            position.coords.longitude,
+            position.coords.latitude,
+          ];
+          this.selectedSourceCoords = this.currentLocationCoords;
+          try {
+            const response = await fetch(
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${position.coords.longitude},${position.coords.latitude}.json?access_token=${environment.mapboxToken}&types=place,locality,neighborhood`
+            );
+            const data = await response.json();
+            if (data.features && data.features.length > 0) {
+              const parts = data.features[0].place_name.split(', ');
+              this.sourceLocationName = parts.slice(0, Math.min(3, parts.length)).join(', ');
+            }
+          } catch (e) {
+            this.sourceLocationName = 'Location detected';
+          }
+          // Update map
+          if (this.destinationMap) {
+            this.destinationMap.updateSource(this.sourceLocationName, this.currentLocationCoords!);
+          }
+          this.isRefreshingSource = false;
+        },
+        () => {
+          this.isRefreshingSource = false;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      this.isRefreshingSource = false;
+    }
+  }
+
+  onSourceSelected(event: MatAutocompleteSelectedEvent): void {
+    const selectedCity = event.option.value;
+    if (selectedCity) {
+      this.cityService.getCoordinates(selectedCity).subscribe((coords) => {
+        if (coords) {
+          this.selectedSourceCoords = coords;
+          this.sourceLocationName = selectedCity;
+          if (this.destinationMap) {
+            this.destinationMap.updateSource(selectedCity, coords);
+          }
+        }
+      });
+    }
   }
 
   onDestinationSelected(event: any): void {

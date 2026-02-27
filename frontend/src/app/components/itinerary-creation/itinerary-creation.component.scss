@@ -294,6 +294,230 @@ h3 {
   }
 }
 
+// ─── Source Location Section ───────────────────────────────────────
+.source-section {
+  margin-bottom: 8px;
+
+  .source-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .source-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    mat-icon {
+      color: #00ff80;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    span {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+    }
+  }
+
+  .source-toggle {
+    display: flex;
+    gap: 8px;
+
+    .toggle-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 24px;
+      border: 1px solid rgba(138, 43, 226, 0.3);
+      background: rgba(138, 43, 226, 0.08);
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      &.active {
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.25), rgba(186, 85, 211, 0.15));
+        border-color: rgba(186, 85, 211, 0.6);
+        color: #ffffff;
+
+        mat-icon {
+          color: #ba55d3;
+        }
+      }
+
+      &:not(.active):hover {
+        background: rgba(138, 43, 226, 0.12);
+        border-color: rgba(138, 43, 226, 0.4);
+      }
+    }
+  }
+
+  // ── Current Location Card ─────────────────
+  .current-location-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(0, 255, 128, 0.04);
+    border: 1px solid rgba(0, 255, 128, 0.18);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #00ff80, #00cc66);
+      border-radius: 4px 0 0 4px;
+    }
+
+    .location-pulse {
+      width: 14px;
+      height: 14px;
+      min-width: 14px;
+      background: #00ff80;
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(0, 255, 128, 0.5);
+      animation: livePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(0, 255, 128, 0.4);
+        opacity: 0.8;
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(0, 255, 128, 0.7);
+        opacity: 1;
+      }
+    }
+
+    .location-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .location-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #00ff80;
+
+        .live-dot {
+          width: 6px;
+          height: 6px;
+          background: #00ff80;
+          border-radius: 50%;
+          animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      }
+
+      .location-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #ffffff;
+      }
+    }
+
+    .refresh-location-btn {
+      color: rgba(0, 255, 128, 0.7);
+      transition: color 0.25s ease;
+
+      &:hover:not([disabled]) {
+        color: #00ff80;
+      }
+
+      &[disabled] {
+        color: rgba(0, 255, 128, 0.3);
+      }
+
+      .spin-icon {
+        animation: spinRefresh 0.8s linear infinite;
+      }
+    }
+
+    @keyframes spinRefresh {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  }
+
+  // ── Custom Source Field ─────────────────
+  .source-field {
+    margin-top: 4px;
+
+    .search-icon {
+      color: rgba(0, 255, 128, 0.7) !important;
+    }
+  }
+}
+
+// ─── Route Connector (Source → Destination) ─────────────────────────
+.route-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  margin: -4px 0 8px;
+
+  .connector-line {
+    width: 2px;
+    height: 16px;
+    background: linear-gradient(180deg, rgba(0, 255, 128, 0.5), rgba(138, 43, 226, 0.5));
+  }
+
+  .connector-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.15);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #ba55d3;
+    }
+  }
+}
+
 // Map Section
 .map-section {
   margin: 24px 0;

@@ -14,6 +14,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import * as mapboxgl from "mapbox-gl";
+import { environment } from "../../../../environments/environment";
 
 @Component({
   selector: "app-destination-map",
@@ -42,6 +43,15 @@ import * as mapboxgl from "mapbox-gl";
         <div class="header-right">
           <button
             mat-icon-button
+            (click)="refreshMyLocation(); $event.stopPropagation()"
+            class="refresh-btn"
+            [disabled]="refreshingLocation"
+            title="Refresh your live location"
+          >
+            <mat-icon [class.spinning]="refreshingLocation">my_location</mat-icon>
+          </button>
+          <button
+            mat-icon-button
             (click)="toggleExpand(); $event.stopPropagation()"
             class="expand-btn"
           >
@@ -66,7 +76,7 @@ import * as mapboxgl from "mapbox-gl";
         <div class="distance-item">
           <mat-icon>my_location</mat-icon>
           <div class="location-info">
-            <span class="label">Your Location</span>
+            <span class="label">Source</span>
             <span class="value">{{
               myLocationName || "Detecting location..."
             }}</span>
@@ -196,6 +206,29 @@ import * as mapboxgl from "mapbox-gl";
         color: #ffffff;
       }
 
+      .map-header .refresh-btn {
+        color: #00ff80;
+        transition: all 0.3s ease;
+      }
+
+      .map-header .refresh-btn:hover:not([disabled]) {
+        background: rgba(0, 255, 128, 0.15);
+      }
+
+      .map-header .refresh-btn[disabled] {
+        color: rgba(0, 255, 128, 0.4);
+        cursor: not-allowed;
+      }
+
+      .map-header .refresh-btn .spinning {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
       .map-header .expand-btn {
         color: #ba55d3;
         transition: all 0.3s ease;
@@ -203,7 +236,6 @@ import * as mapboxgl from "mapbox-gl";
 
       .map-header .expand-btn:hover {
         background: rgba(138, 43, 226, 0.2);
-        transform: scale(1.1);
       }
 
       .map-wrapper {
@@ -387,7 +419,6 @@ import * as mapboxgl from "mapbox-gl";
 
       .distance-card .travel-info .travel-mode:hover {
         background: rgba(138, 43, 226, 0.25);
-        transform: translateY(-2px);
       }
 
       .distance-card .travel-info .travel-mode mat-icon {
@@ -485,6 +516,9 @@ export class DestinationMapComponent
 
   @Input() destinationName: string = "";
   @Input() destinationCoords: [number, number] | null = null;
+  @Input() sourceCoords: [number, number] | null = null;
+  @Input() sourceName: string = "";
+  @Input() useCustomSource: boolean = false;
   @Output() mapReady = new EventEmitter<void>();
 
   map!: mapboxgl.Map;
@@ -497,9 +531,9 @@ export class DestinationMapComponent
   distance: number = 0;
   loading: boolean = true;
   isExpanded: boolean = false;
+  refreshingLocation: boolean = false;
 
-  private accessToken =
-    "MAPBOX_TOKEN_REMOVED";
+  private accessToken = environment.mapboxToken;
 
   ngOnInit(): void {
     (mapboxgl as any).accessToken = this.accessToken;
@@ -770,6 +804,95 @@ export class DestinationMapComponent
       return `${days} day${days > 1 ? "s" : ""}`;
     }
     return `${hours} hr${hours > 1 ? "s" : ""}`;
+  }
+
+  refreshMyLocation(): void {
+    if (this.refreshingLocation) return;
+    this.refreshingLocation = true;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          this.myLocation = [
+            position.coords.longitude,
+            position.coords.latitude,
+          ];
+          this.myLocationName = await this.reverseGeocode(this.myLocation);
+
+          // Update marker position
+          if (this.myLocationMarker) {
+            this.myLocationMarker.setLngLat(this.myLocation);
+            this.myLocationMarker.setPopup(
+              new mapboxgl.Popup({ offset: 25 }).setHTML(`
+                <div style="padding: 8px; font-family: Poppins, sans-serif;">
+                  <strong style="color: #2b1d44;">📍 Your Location</strong><br>
+                  <span style="color: #666; font-size: 12px;">${this.myLocationName || 'Current Position'}</span>
+                </div>
+              `)
+            );
+          }
+
+          // Recalculate route & distance if destination exists
+          if (this.destinationCoords) {
+            this.distance = this.calculateDistance(this.myLocation, this.destinationCoords);
+            this.drawRoute(this.myLocation, this.destinationCoords);
+
+            const bounds = new mapboxgl.LngLatBounds()
+              .extend(this.myLocation)
+              .extend(this.destinationCoords);
+            this.map.fitBounds(bounds, {
+              padding: { top: 50, bottom: 50, left: 50, right: 50 },
+              duration: 1500,
+            });
+          } else {
+            this.map.flyTo({ center: this.myLocation, zoom: 12, duration: 1500 });
+          }
+
+          this.refreshingLocation = false;
+        },
+        (error) => {
+          console.warn('Location refresh failed:', error);
+          this.refreshingLocation = false;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      this.refreshingLocation = false;
+    }
+  }
+
+  updateSource(name: string, coords: [number, number]): void {
+    this.myLocation = coords;
+    this.myLocationName = name;
+
+    // Update marker position
+    if (this.myLocationMarker) {
+      this.myLocationMarker.setLngLat(coords);
+      this.myLocationMarker.setPopup(
+        new mapboxgl.Popup({ offset: 25 }).setHTML(`
+          <div style="padding: 8px; font-family: Poppins, sans-serif;">
+            <strong style="color: #2b1d44;">📍 ${name ? 'Source' : 'Your Location'}</strong><br>
+            <span style="color: #666; font-size: 12px;">${name || 'Current Position'}</span>
+          </div>
+        `)
+      );
+    }
+
+    // Recalculate route & distance if destination exists
+    if (this.destinationCoords) {
+      this.distance = this.calculateDistance(coords, this.destinationCoords);
+      this.drawRoute(coords, this.destinationCoords);
+
+      const bounds = new mapboxgl.LngLatBounds()
+        .extend(coords)
+        .extend(this.destinationCoords);
+      this.map.fitBounds(bounds, {
+        padding: { top: 50, bottom: 50, left: 50, right: 50 },
+        duration: 1500,
+      });
+    } else {
+      this.map.flyTo({ center: coords, zoom: 12, duration: 1500 });
+    }
   }
 
   toggleExpand(): void {

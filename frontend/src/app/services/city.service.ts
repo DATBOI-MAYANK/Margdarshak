@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface PlaceResult {
   name: string;
@@ -29,7 +30,7 @@ export interface MapboxResponse {
 export class CityService {
   // Mapbox Geocoding API
   private apiUrl = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
-  private accessToken = 'MAPBOX_TOKEN_REMOVED';
+  private accessToken = environment.mapboxToken;
 
   // Fallback cities with coordinates
   private fallbackCities: PlaceResult[] = [

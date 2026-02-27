@@ -14,7 +14,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import * as mapboxgl from "mapbox-gl";
-import { MAPBOX_TOKEN } from "../../../../config/mapbox.config";
+import { MAPBOX_TOKEN } from "../../../config/mapbox.config";
 
 @Component({
   selector: "app-destination-map",

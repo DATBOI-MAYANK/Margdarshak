@@ -478,7 +478,7 @@ import { User } from '../../models/user.model';
     }
 
     .ticket-icon {
-      mat-icon {
+      :is(mat-icon) {
         font-size: 32px;
         width: 32px;
         height: 32px;

@@ -126,9 +126,7 @@
             placeholder="Type a city or country..."
             [matAutocomplete]="auto"
           />
-          <mat-icon matSuffix class="search-icon" *ngIf="!isSearching"
-            >travel_explore</mat-icon
-          >
+          <mat-icon matSuffix class="search-icon" *ngIf="!isSearching">travel_explore</mat-icon>
           <mat-spinner
             matSuffix
             *ngIf="isSearching"

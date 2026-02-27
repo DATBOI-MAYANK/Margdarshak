@@ -201,7 +201,7 @@ import { MessageService, Message } from '../../core/services/message.service';
         letter-spacing: 0.5px;
         white-space: nowrap;
 
-        mat-icon {
+        :is(mat-icon) {
           font-size: 16px;
           width: 16px;
           height: 16px;
@@ -260,7 +260,7 @@ import { MessageService, Message } from '../../core/services/message.service';
           color: #555;
           margin-bottom: 16px;
 
-          mat-icon {
+          :is(mat-icon) {
             font-size: 20px;
             width: 20px;
             height: 20px;
@@ -300,7 +300,7 @@ import { MessageService, Message } from '../../core/services/message.service';
             margin-bottom: 8px;
             flex-wrap: wrap;
 
-            strong {
+            :is(strong) {
               font-size: 0.95rem;
               line-height: 1;
             }
@@ -356,7 +356,7 @@ import { MessageService, Message } from '../../core/services/message.service';
           color: #555;
           margin: 16px 0;
 
-          mat-icon {
+          :is(mat-icon) {
             font-size: 20px;
             width: 20px;
             height: 20px;
@@ -401,7 +401,7 @@ import { MessageService, Message } from '../../core/services/message.service';
         color: #2e7d32;
         font-weight: 500;
 
-        mat-icon {
+        :is(mat-icon) {
           font-size: 24px;
           width: 24px;
           height: 24px;
@@ -412,7 +412,7 @@ import { MessageService, Message } from '../../core/services/message.service';
           flex-shrink: 0;
         }
 
-        span {
+        :is(span) {
           line-height: 1.4;
         }
       }

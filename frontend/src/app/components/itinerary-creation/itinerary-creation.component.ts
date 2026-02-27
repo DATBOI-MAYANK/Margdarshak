@@ -20,7 +20,7 @@ import {
 } from "rxjs/operators";
 import { DestinationMapComponent } from "../../shared/components/destination-map/destination-map.component";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
-import { MAPBOX_TOKEN } from "../../../config/mapbox.config";
+import { MAPBOX_TOKEN } from "../../config/mapbox.config";
 
 @Component({
   selector: "app-itinerary-creation",
@@ -128,7 +128,7 @@ export class ItineraryCreationComponent implements OnInit, OnDestroy {
           // Reverse geocode to get name
           try {
             const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${position.coords.longitude},${position.coords.latitude}.json?access_token=${environment.mapboxToken}&types=place,locality,neighborhood`
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${position.coords.longitude},${position.coords.latitude}.json?access_token=${MAPBOX_TOKEN}&types=place,locality,neighborhood`
             );
             const data = await response.json();
             if (data.features && data.features.length > 0) {

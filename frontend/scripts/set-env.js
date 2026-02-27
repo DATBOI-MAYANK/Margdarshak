@@ -36,3 +36,35 @@ fs.writeFileSync(path.join(outDir, 'mapbox.config.ts'), content);
 console.log(token
   ? '✓ mapbox.config.ts generated with token'
   : '⚠ mapbox.config.ts generated WITHOUT token (set MAPBOX_TOKEN env var)');
+
+// ── Ensure Angular environment files exist (needed for fileReplacements) ──
+const envDir = path.join(__dirname, '..', 'src', 'environments');
+if (!fs.existsSync(envDir)) {
+  fs.mkdirSync(envDir, { recursive: true });
+}
+
+const apiUrl = process.env.API_URL || 'https://smartitinery2-1.onrender.com/api';
+
+const envDev = `export const environment = {
+  production: false,
+  apiUrl: '${apiUrl}',
+};
+`;
+
+const envProd = `export const environment = {
+  production: true,
+  apiUrl: '${apiUrl}',
+};
+`;
+
+const envDevPath = path.join(envDir, 'environment.ts');
+const envProdPath = path.join(envDir, 'environment.prod.ts');
+
+if (!fs.existsSync(envDevPath)) {
+  fs.writeFileSync(envDevPath, envDev);
+  console.log('✓ environment.ts created');
+}
+if (!fs.existsSync(envProdPath)) {
+  fs.writeFileSync(envProdPath, envProd);
+  console.log('✓ environment.prod.ts created');
+}

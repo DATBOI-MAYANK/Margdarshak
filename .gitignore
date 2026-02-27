@@ -23,11 +23,20 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 
+# Duplicate/generated assets
+frontend/src/assets/
+frontend/.angular/
+
+# Windows copy artifacts
+*- Copy.*
+* - Copy.*
+
 # OS
 .DS_Store
 Thumbs.db
 
 # IDE
 .idea/
+.vscode/
 *.swp
 *.swo

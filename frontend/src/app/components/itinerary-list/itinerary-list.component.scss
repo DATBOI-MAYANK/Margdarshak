@@ -75,7 +75,7 @@ $white: #ffffff;
       gap: 32px;
 
       .stat-item {
-        text-align: left;
+        text-align: center;
         
         .stat-number {
           display: block;
@@ -83,6 +83,7 @@ $white: #ffffff;
           font-weight: 800;
           color: $primary;
           line-height: 1.2;
+          white-space: nowrap;
         }
 
         .stat-label {
@@ -748,23 +749,31 @@ $white: #ffffff;
 
 @media (max-width: 768px) {
   .itinerary-list-container {
-    padding: 24px 16px;
+    padding: 16px 12px;
   }
   
   .header h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
   
   .quick-actions .actions-content {
     flex-direction: column;
-    gap: 24px;
-    padding: 20px 24px;
+    gap: 16px;
+    padding: 16px;
+    text-align: center;
     
     .stats-section {
-      gap: 32px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
       
-      .stat-item .stat-number {
-        font-size: 1.75rem;
+      .stat-item {
+        text-align: center;
+
+        .stat-number {
+          font-size: 1.5rem;
+        }
       }
     }
     
@@ -774,9 +783,18 @@ $white: #ffffff;
     }
   }
   
+  .filters-card {
+    padding: 12px 14px;
+  }
+
   .filters .filter-row {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .filters .filter-actions {
+    justify-content: center;
   }
   
   .itineraries-grid {

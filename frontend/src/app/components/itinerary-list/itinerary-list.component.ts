@@ -171,7 +171,8 @@ export class ItineraryListComponent implements OnInit {
   getTotalBudget(): number {
     if (!this.itineraries || this.itineraries.length === 0) return 0;
     return this.itineraries.reduce((total, itinerary) => {
-      return total + (itinerary.budget || 0);
+      const b = typeof itinerary.budget === 'string' ? parseFloat(itinerary.budget) : itinerary.budget;
+      return total + (b || 0);
     }, 0);
   }
 

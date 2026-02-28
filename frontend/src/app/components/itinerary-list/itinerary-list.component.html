@@ -1,0 +1,331 @@
+<div class="bg-shapes">
+  <div class="shape shape-1"></div>
+  <div class="shape shape-2"></div>
+  <div class="shape shape-3"></div>
+  <div class="shape shape-4"></div>
+  <div class="shape shape-5"></div>
+</div>
+
+<div class="itinerary-list-container">
+  <div class="header">
+    <h1>My Travel Dashboard</h1>
+  </div>
+
+  <!-- Central Call-to-Action Section -->
+  <div class="cta-section" *ngIf="!itineraries || itineraries.length === 0">
+    <div class="cta-content">
+      <div class="cta-icon">
+        <mat-icon>luggage</mat-icon>
+      </div>
+      <h2>Ready for Your Next Adventure?</h2>
+      <p>Start planning your perfect trip with our intelligent itinerary builder</p>
+      <button
+        class="plan-trip-btn"
+        mat-raised-button
+        (click)="createNew()"
+      >
+        <span class="btn-content">
+          <mat-icon>flight_takeoff</mat-icon>
+          <span class="btn-text">Plan Your Trip Now</span>
+          <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+        </span>
+      </button>
+      <div class="cta-features">
+        <div class="feature-item">
+          <mat-icon>smart_toy</mat-icon>
+          <span>AI-Powered Planning</span>
+        </div>
+        <div class="feature-item">
+          <mat-icon>group</mat-icon>
+          <span>Collaborative Sharing</span>
+        </div>
+        <div class="feature-item">
+          <mat-icon>savings</mat-icon>
+          <span>Budget Tracking</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Bar for existing itineraries -->
+  <div class="quick-actions" *ngIf="itineraries && itineraries.length > 0">
+    <div class="actions-content">
+      <div class="stats-section">
+        <div class="stat-item">
+          <span class="stat-number">{{ itineraries.length }}</span>
+          <span class="stat-label">Active Trips</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ getTotalBudget() | currency:'USD':'symbol':'1.0-0' }}</span>
+          <span class="stat-label">Total Budget</span>
+        </div>
+      </div>
+      <button
+        class="create-new-btn"
+        mat-raised-button
+        (click)="createNew()"
+      >
+        <mat-icon>add</mat-icon>
+        <span>New Trip</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card" *ngIf="itineraries && itineraries.length > 0">
+    <div class="filters">
+      <div class="filter-row">
+        <mat-form-field appearance="outline" class="filter-field destination-field">
+          <mat-label>Destination</mat-label>
+          <input
+            matInput
+            [(ngModel)]="destinationFilter"
+            placeholder="Search by destination"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field date-field">
+          <mat-label>Start Date (From)</mat-label>
+          <input
+            matInput
+            [matDatepicker]="startPicker"
+            [(ngModel)]="startDateFilter"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="startPicker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field date-field">
+          <mat-label>End Date (To)</mat-label>
+          <input
+            matInput
+            [matDatepicker]="endPicker"
+            [(ngModel)]="endDateFilter"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="endPicker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field budget-field">
+          <mat-label>Min Budget</mat-label>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="minBudgetFilter"
+            placeholder="Min"
+          />
+          <span matPrefix>$&nbsp;</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field budget-field">
+          <mat-label>Max Budget</mat-label>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="maxBudgetFilter"
+            placeholder="Max"
+          />
+          <span matPrefix>$&nbsp;</span>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-actions">
+        <button mat-raised-button class="apply-btn" (click)="applyFilters()">
+          <mat-icon>filter_list</mat-icon>
+          <span>Apply Filters</span>
+        </button>
+        <button mat-raised-button class="clear-btn" (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Trips Section -->
+  <div class="my-trips-section" *ngIf="itineraries && itineraries.length > 0">
+    <div class="section-header">
+      <h2>My Travel Collection</h2>
+      <p>Your personalized journey archive</p>
+    </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage && !loading" class="error">
+    <mat-error>{{ errorMessage }}</mat-error>
+  </div>
+
+  <!-- Itineraries Grid -->
+  <div class="itineraries-grid">
+    <div
+      *ngFor="let itinerary of itineraries"
+      class="itinerary-card"
+      [class.shared-itinerary]="itinerary.role === 'collaborator'"
+    >
+      <!-- Unread Chat Badge -->
+      <div class="chat-unread-corner" *ngIf="getUnreadCount(itinerary.id) > 0">
+        <mat-icon>chat_bubble</mat-icon>
+        <span>{{ getUnreadCount(itinerary.id) }}</span>
+      </div>
+      
+      <!-- Shared Badge -->
+      <div *ngIf="itinerary.role === 'collaborator'" class="shared-badge">
+        <mat-icon>group</mat-icon>
+        <span>Shared by {{ itinerary.owner_name }}</span>
+      </div>
+
+      <div class="card-content">
+        <div class="card-header">
+          <h2 class="destination-title">{{ itinerary.destination }}</h2>
+          <p class="date-range">
+            {{ itinerary.start_date | date : "mediumDate" }} -
+            {{ itinerary.end_date | date : "mediumDate" }}
+            <span class="duration">({{ getDuration(itinerary) }} days)</span>
+          </p>
+        </div>
+
+        <div class="card-details">
+          <div class="detail-item">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <div class="detail-text">
+              <span class="detail-label">Budget</span>
+              <span class="detail-value">${{ itinerary.budget | number : "1.2-2" }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <mat-icon>receipt_long</mat-icon>
+            <div class="detail-text">
+              <span class="detail-label">Est. Expenses</span>
+              <span class="detail-value">${{ calculateTotalExpenses(itinerary) | number : "1.2-2" }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <mat-icon>event_note</mat-icon>
+            <div class="detail-text">
+              <span class="detail-label">Activities</span>
+              <span class="detail-value">{{ itinerary.activities?.length || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Permission indicator for shared itineraries -->
+        <div
+          *ngIf="itinerary.role === 'collaborator'"
+          class="permission-indicator"
+        >
+          <span class="permission-chip" [class.can-edit]="itinerary.collab_permission === 'edit'">
+            <mat-icon>{{ itinerary.collab_permission === "edit" ? "edit" : "visibility" }}</mat-icon>
+            {{ itinerary.collab_permission === "edit" ? "Can Edit" : "View Only" }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="action-btn view-btn" (click)="viewDetails(itinerary.id)">
+          <mat-icon>visibility</mat-icon>
+          <span>View</span>
+        </button>
+        <button
+          class="action-btn edit-btn"
+          (click)="editItinerary(itinerary.id)"
+          *ngIf="itinerary.role === 'owner' || itinerary.collab_permission === 'edit'"
+        >
+          <mat-icon>edit</mat-icon>
+          <span>Edit</span>
+        </button>
+        <button
+          class="action-btn share-btn"
+          (click)="shareItinerary(itinerary)"
+          *ngIf="itinerary.role === 'owner'"
+        >
+          <mat-icon>share</mat-icon>
+          <span>Share</span>
+        </button>
+        <button
+          class="action-btn delete-btn"
+          (click)="deleteItinerary(itinerary.id)"
+          *ngIf="itinerary.role === 'owner'"
+        >
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div *ngIf="!loading && itineraries.length === 0" class="no-results">
+    <mat-icon>explore_off</mat-icon>
+    <h2>No itineraries found</h2>
+    <p>Create your first travel itinerary to get started!</p>
+    <button mat-raised-button color="primary" (click)="createNew()">
+      Create Itinerary
+    </button>
+  </div>
+  </div>
+</div>
+<!-- ================= HELP CHATBOT ================= -->
+<!-- ================= HELP CHATBOT ================= -->
+
+<!-- Backdrop (click outside to close) -->
+<div class="help-bot-backdrop" *ngIf="botOpen" (click)="closeBot()">
+  <!-- Chatbot Wrapper -->
+  <div class="help-bot-wrapper open" (click)="$event.stopPropagation()">
+    <!-- Chat Window -->
+    <div class="help-bot-window">
+      <!-- Header -->
+      <div class="bot-header">
+        <div class="bot-title">
+          <span class="bot-dot"></span>
+          Voyage.IQ Help
+        </div>
+        <button class="close-btn" (click)="closeBot()">✕</button>
+      </div>
+
+      <!-- Messages -->
+      <div class="bot-body">
+        <div
+          class="bot-msg"
+          *ngFor="let msg of messages"
+          [class.user]="msg.from === 'user'"
+        >
+          {{ msg.text }}
+        </div>
+
+        <!-- Quick Suggestions -->
+        <div class="suggestions" *ngIf="showSuggestions">
+          <button *ngFor="let q of quickHelp" (click)="selectSuggestion(q)">
+            {{ q }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="bot-input">
+        <input
+          type="text"
+          placeholder="Ask about planning, editing, sharing..."
+          [(ngModel)]="userInput"
+          (keydown.enter)="sendMessage()"
+        />
+        <button (click)="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Chatbot Button (OUTSIDE backdrop) -->
+<div class="help-bot-fab" (click)="toggleBot()">
+  <mat-icon>support_agent</mat-icon>
+</div>

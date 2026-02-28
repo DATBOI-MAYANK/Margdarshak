@@ -1,0 +1,345 @@
+<!-- Sticky Header (hidden on small screens via `showLandingHeader`) -->
+<mat-toolbar *ngIf="showLandingHeader" class="landing-header" [class.header-visible]="headerVisible">
+  <!-- Logo -->
+  <div class="logo">
+    <img src="assets/logo/logo.png" alt="Voyage.IQ Logo" />
+  </div>
+
+  <!-- Mobile Sign In (left) - visible only on small screens -->
+  <button
+    class="mobile-signin mobile-signin-left"
+    aria-label="Sign In (mobile)"
+    (click)="onAuthClick()"
+  >
+    Sign In
+  </button>
+
+  <!-- Navigation -->
+  <nav class="nav-links" [class.nav-visible]="headerVisible">
+    <a href="#home" data-section="home">Home</a>
+    <a href="#features" data-section="features">Features</a>
+    <a href="#how" data-section="how">How It Works</a>
+    <a href="#about" data-section="about">About</a>
+    <a href="#contact" data-section="contact">Contact</a>
+  </nav>
+
+  <!-- 🔑 Indicator now directly under header -->
+  <span class="nav-indicator" #navIndicator></span>
+
+  <!-- Auth CTA -->
+  <div class="auth-cta">
+    <button
+      class="auth-animate-btn"
+      aria-label="Proceed to Sign In or Sign Up"
+      (click)="onAuthClick()"
+      [disabled]="animating"
+    >
+      <!-- Car Icon Layer -->
+      <span class="car-layer" aria-hidden="true">
+        <img src="assets/icons/car/car.svg" alt="" draggable="false" />
+      </span>
+
+      <!-- Text Layer -->
+      <span class="text-layer"> Sign In </span>
+    </button>
+    <!-- Mobile inline Sign In moved inside auth area so it lives in the navbar flow -->
+    <button
+      class="mobile-signin"
+      aria-label="Sign In (mobile)"
+      (click)="onAuthClick()"
+    >
+      Sign In
+    </button>
+  </div>
+</mat-toolbar>
+
+<!-- Hero Section -->
+<section class="hero hero-bg" id="home">
+  <div class="hero-overlay">
+    <div class="hero-text">
+      <div class="hero-headline">
+        <div class="headline-row">
+          <span class="headline-muted">Plan Travel with</span>
+          <span class="headline-primary">Clarity</span>
+        </div>
+
+        <div class="headline-row secondary">
+          <span class="headline-contrast">Not Complexity</span>
+        </div>
+      </div>
+
+      <p class="hero-subtext">
+        Design intelligent itineraries with
+        <span class="emphasis">structured schedules</span>,
+        <span class="emphasis">distance awareness</span>, and
+        <span class="emphasis">transparent budget visibility</span> delivered
+        through a single, unified platform.
+      </p>
+
+      <a mat-raised-button class="hero-cta" routerLink="/login">
+        Get Started
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Trust & Credibility Strip -->
+<section class="principles-strip">
+  <div class="principle-item">
+    <img
+      src="assets/icons/principles/systematic.svg"
+      alt="Systematic by Design"
+      class="principle-icon"
+    />
+    <h4>Systematic by Design</h4>
+  </div>
+
+  <div class="principle-item">
+    <img
+      src="assets/icons/principles/public.svg"
+      alt="Grounded in Reality"
+      class="principle-icon"
+    />
+    <h4>Grounded in Reality</h4>
+  </div>
+
+  <div class="principle-item">
+    <img
+      src="assets/icons/principles/precision.svg"
+      alt="Designed for Precision"
+      class="principle-icon"
+    />
+    <h4>Designed for Precision</h4>
+  </div>
+</section>
+
+<!-- Feature Highlights -->
+<!-- Feature Highlights -->
+<section class="features features-bg" id="features">
+  <h2 class="section-title">Core Capabilities</h2>
+
+  <div class="features-cards">
+    <!-- Card 1 -->
+    <div class="feature-card">
+      <img src="assets/images/features/feature1.png" alt="Itinerary Planning" />
+
+      <div class="feature-glass">
+        <h3>Intelligent Itinerary Design</h3>
+        <p>
+          Structured travel plans generated from destinations, dates, and
+          preferences.
+        </p>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="feature-card">
+      <img
+        src="assets/images/features/feature2.png"
+        alt="Map & Distance Awareness"
+      />
+
+      <div class="feature-glass">
+        <h3>Map & Distance Awareness</h3>
+        <p>
+          Visual route insights and realistic travel time estimation across
+          locations.
+        </p>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="feature-card">
+      <img src="assets/images/features/feature3.png" alt="Budget Planning" />
+
+      <div class="feature-glass">
+        <h3>Budget Transparency</h3>
+        <p>
+          Clear cost visibility with daily and total budget breakdowns well
+          organized.
+        </p>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="feature-card">
+      <img src="assets/images/features/feature4.png" alt="Flexible Planning" />
+
+      <div class="feature-glass">
+        <h3>Flexible & Shareable Plans</h3>
+        <p>
+          Modify, save, and share itineraries seamlessly across devices anytime
+          easily.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-roadmap" id="how">
+  <h2 class="section-title">How It Works</h2>
+
+  <div class="roadmap-container">
+    <img
+      src="assets/images/howitworks/howitworks.png"
+      alt="Planning roadmap"
+      class="roadmap-image"
+    />
+
+    <!-- Step 1 -->
+    <div class="roadmap-step step-1">
+      <h4>Capture Travel Intent</h4>
+      <p>Define destinations, dates, and preferences</p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="roadmap-step step-2">
+      <h4>Generate Itinerary</h4>
+      <p>Structured schedules created automatically</p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="roadmap-step step-3">
+      <h4>Refine & Optimize</h4>
+      <p>Adjust routes, time, and costs</p>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="roadmap-step step-4">
+      <h4>Save and Share</h4>
+      <p>Export or collaborate seamlessly</p>
+    </div>
+  </div>
+</section>
+
+<!-- Visual Product Showcase -->
+<!-- Visual Product Showcase -->
+<section class="product-showcase">
+  <div class="showcase-viewport">
+    <div class="showcase-track">
+      <div class="showcase-item">
+        <img
+          src="assets/images/showcase/screen-1.png"
+          alt="Dashboard overview"
+        />
+      </div>
+      <div class="showcase-item">
+        <img
+          src="assets/images/showcase/screen-2.png"
+          alt="Itinerary planning"
+        />
+      </div>
+      <div class="showcase-item">
+        <img src="assets/images/showcase/screen-3.png" alt="Map routing" />
+      </div>
+      <div class="showcase-item">
+        <img src="assets/images/showcase/screen-4.png" alt="Budget summary" />
+      </div>
+      <div class="showcase-item">
+        <img
+          src="assets/images/showcase/screen-5.png"
+          alt="Sharing and export"
+        />
+      </div>
+
+      <!-- 🔁 duplicate once for seamless loop -->
+      <div class="showcase-item">
+        <img src="assets/images/showcase/screen-1.png" alt="Dashboard overview" />
+      </div>
+      <div class="showcase-item">
+        <img src="assets/images/showcase/screen-2.png" alt="Itinerary planning" />
+      </div>
+      <div class="showcase-item">
+        <img src="assets/images/showcase/screen-3.png" alt="Map routing" />
+      </div>
+      <div class="showcase-item">
+        <img src="assets/images/showcase/screen-4.png" alt="Budget summary" />
+      </div>
+      <div class="showcase-item">
+        <img src="assets/images/showcase/screen-5.png" alt="Sharing and export" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About Section -->
+<section class="about" id="about">
+  <div class="about-container">
+    <!-- Left column -->
+    <div class="about-heading">
+      <h2>
+        About<br />
+        <span class="brand">
+          <span class="brand-name">Voyage</span
+          ><span class="brand-suffix">.IQ</span>
+        </span>
+      </h2>
+    </div>
+
+    <!-- Right column -->
+    <div class="about-content">
+      <p>
+        Voyage.IQ is a structured travel planning platform built to simplify and
+        bring clarity to itinerary creation. It enables users to plan with
+        confidence by combining intelligent workflows with real-world travel
+        considerations such as scheduling, distance awareness, and budget
+        transparency.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+
+<footer class="footer" id="contact">
+  <div class="footer-container">
+    <!-- Brand Column -->
+    <div class="footer-col brand-col">
+      <div class="brand-logo">
+        <img src="assets/logo/logo.png" alt="Voyage.IQ logo" />
+      </div>
+
+      <p class="footer-desc">
+        Voyage.IQ is a structured travel planning platform focused on clarity,
+        precision, and real-world usability.
+      </p>
+    </div>
+
+    <!-- Product -->
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </div>
+
+    <!-- Resources -->
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">Support</a></li>
+        <li><a href="#">FAQs</a></li>
+      </ul>
+    </div>
+
+    <!-- Legal -->
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Disclaimer</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="footer-bottom">
+    <p>© 2026 Voyage.IQ · All rights reserved</p>
+    <p class="footer-meta">Version 1.0 · Matrimorphosis - Capstone Project</p>
+  </div>
+</footer>

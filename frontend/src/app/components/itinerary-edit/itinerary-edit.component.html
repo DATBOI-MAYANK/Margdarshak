@@ -1,0 +1,197 @@
+<div class="edit-container">
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Form -->
+  <mat-card *ngIf="!loading">
+    <mat-card-header>
+      <mat-card-title>Edit Travel Itinerary</mat-card-title>
+      
+      <!-- Active Editors Indicator -->
+      <div class="active-editors" *ngIf="activeEditors.length > 0">
+        <span class="editors-label">
+          <mat-icon>group</mat-icon>
+          {{ activeEditors.length }} other{{ activeEditors.length > 1 ? 's' : '' }} editing
+        </span>
+        <div class="editor-avatars">
+          <div class="editor-avatar" *ngFor="let editor of activeEditors" [matTooltip]="editor.name">
+            {{ editor.name.charAt(0).toUpperCase() }}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Connection Status -->
+      <div class="connection-status" [class.connected]="isConnected">
+        <mat-icon>{{ isConnected ? 'wifi' : 'wifi_off' }}</mat-icon>
+        <span>{{ isConnected ? 'Live' : 'Offline' }}</span>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="itineraryForm" (ngSubmit)="onSubmit()">
+        <h3>Basic Information</h3>
+        
+        <mat-form-field appearance="outline" class="full-width" [class.field-locked]="isFieldLocked('destination')">
+          <mat-label>Destination</mat-label>
+          <input matInput formControlName="destination" placeholder="e.g., Paris, France"
+                 (focus)="onFieldFocus('destination')"
+                 (blur)="onFieldBlur('destination')"
+                 (input)="onFieldChange('destination', $any($event.target).value)">
+          <mat-hint *ngIf="isFieldLocked('destination')" class="field-lock-hint">
+            <mat-icon>edit</mat-icon> {{ getFieldLocker('destination') }} is editing
+          </mat-hint>
+          <mat-error *ngIf="itineraryForm.get('destination')?.hasError('required')">
+            Destination is required
+          </mat-error>
+        </mat-form-field>
+
+        <div class="date-row">
+          <mat-form-field appearance="outline" [class.field-locked]="isFieldLocked('start_date')">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="start_date"
+                   (focus)="onFieldFocus('start_date')"
+                   (blur)="onFieldBlur('start_date')"
+                   (dateChange)="onFieldChange('start_date', $event.value)">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+            <mat-hint *ngIf="isFieldLocked('start_date')" class="field-lock-hint">
+              <mat-icon>edit</mat-icon> {{ getFieldLocker('start_date') }} is editing
+            </mat-hint>
+            <mat-error *ngIf="itineraryForm.get('start_date')?.hasError('required')">
+              Start date is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" [class.field-locked]="isFieldLocked('end_date')">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="end_date"
+                   (focus)="onFieldFocus('end_date')"
+                   (blur)="onFieldBlur('end_date')"
+                   (dateChange)="onFieldChange('end_date', $event.value)">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+            <mat-hint *ngIf="isFieldLocked('end_date')" class="field-lock-hint">
+              <mat-icon>edit</mat-icon> {{ getFieldLocker('end_date') }} is editing
+            </mat-hint>
+            <mat-error *ngIf="itineraryForm.get('end_date')?.hasError('required')">
+              End date is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width" [class.field-locked]="isFieldLocked('budget')">
+          <mat-label>Budget ($)</mat-label>
+          <input matInput type="number" formControlName="budget"
+                 (focus)="onFieldFocus('budget')"
+                 (blur)="onFieldBlur('budget')"
+                 (input)="onFieldChange('budget', $any($event.target).value)">
+          <mat-hint *ngIf="isFieldLocked('budget')" class="field-lock-hint">
+            <mat-icon>edit</mat-icon> {{ getFieldLocker('budget') }} is editing
+          </mat-hint>
+          <mat-error *ngIf="itineraryForm.get('budget')?.hasError('required')">
+            Budget is required
+          </mat-error>
+          <mat-error *ngIf="itineraryForm.get('budget')?.hasError('min')">
+            Budget must be greater than 0
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" [class.field-locked]="isFieldLocked('notes')">
+          <mat-label>Notes</mat-label>
+          <textarea matInput formControlName="notes" rows="3"
+                    (focus)="onFieldFocus('notes')"
+                    (blur)="onFieldBlur('notes')"
+                    (input)="onFieldChange('notes', $any($event.target).value)"></textarea>
+          <mat-hint *ngIf="isFieldLocked('notes')" class="field-lock-hint">
+            <mat-icon>edit</mat-icon> {{ getFieldLocker('notes') }} is editing
+          </mat-hint>
+        </mat-form-field>
+
+        <!-- Media Upload Section -->
+        <div class="media-section">
+          <h3>Trip Photos</h3>
+          <app-media-upload
+            [uploadedFiles]="uploadedMedia"
+            (filesUploaded)="onMediaUploaded($event)"
+            (fileRemoved)="onMediaRemoved($event)">
+          </app-media-upload>
+        </div>
+
+        <!-- Activities Section -->
+        <div class="activities-section">
+          <div class="section-header">
+            <h3>Activities</h3>
+            <button mat-raised-button type="button" color="accent" (click)="addActivity()">
+              <mat-icon>add</mat-icon>
+              Add Activity
+            </button>
+          </div>
+
+          <div formArrayName="activities">
+            <mat-card *ngFor="let activity of activities.controls; let i = index" [formGroupName]="i" class="activity-card">
+              <div class="activity-header">
+                <h4>Activity {{ i + 1 }}</h4>
+                <button mat-icon-button type="button" color="warn" (click)="removeActivity(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="activity-fields">
+                <mat-form-field appearance="outline">
+                  <mat-label>Activity Name</mat-label>
+                  <input matInput formControlName="name">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Time</mat-label>
+                  <input matInput formControlName="time">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Duration</mat-label>
+                  <input matInput formControlName="duration">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Estimated Cost ($)</mat-label>
+                  <input matInput type="number" formControlName="estimatedCost">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width-field">
+                  <mat-label>Location</mat-label>
+                  <input matInput formControlName="location">
+                </mat-form-field>
+              </div>
+            </mat-card>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          <mat-error>{{ errorMessage }}</mat-error>
+        </div>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving || itineraryForm.invalid">
+            <span *ngIf="!saving">Save Changes</span>
+            <span *ngIf="saving">Saving...</span>
+          </button>
+          <button mat-raised-button color="accent" type="button" (click)="openCollaboratorDialog()">
+            <mat-icon>group_add</mat-icon>
+            Manage Collaborators
+          </button>
+          <button mat-raised-button type="button" routerLink="/dashboard">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Collaboration Chat for shared itineraries -->
+<app-collaboration-chat 
+  *ngIf="itineraryId && hasCollaborators" 
+  [itineraryId]="itineraryId">
+</app-collaboration-chat>

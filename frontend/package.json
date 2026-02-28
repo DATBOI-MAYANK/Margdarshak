@@ -1,0 +1,49 @@
+{
+  "name": "travel-itinerary-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "prestart": "node scripts/set-env.js",
+    "start": "ng serve",
+    "prebuild": "node scripts/set-env.js",
+    "build": "ng build --configuration production",
+    "build:dev": "ng build --configuration development",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "vercel-build": "ng build --configuration production"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@angular/animations": "^16.2.0",
+    "@angular/cdk": "^16.2.14",
+    "@angular/common": "^16.2.0",
+    "@angular/compiler": "^16.2.0",
+    "@angular/core": "^16.2.0",
+    "@angular/forms": "^16.2.0",
+    "@angular/material": "^16.2.0",
+    "@angular/platform-browser": "^16.2.0",
+    "@angular/platform-browser-dynamic": "^16.2.0",
+    "@angular/router": "^16.2.0",
+    "chart.js": "^4.4.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.1",
+    "mapbox-gl": "^3.17.0",
+    "ng2-charts": "^4.1.1",
+    "ngx-image-cropper": "^7.2.0",
+    "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.1",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.13.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^16.2.16",
+    "@angular/cli": "^16.2.0",
+    "@angular/compiler-cli": "^16.2.0",
+    "@types/mapbox-gl": "^3.4.1",
+    "@types/node": "^20.10.5",
+    "typescript": "~5.1.3"
+  }
+}

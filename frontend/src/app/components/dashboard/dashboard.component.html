@@ -1,0 +1,517 @@
+<div class="dashboard-page">
+  <!-- Animated Background -->
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+    <div class="shape shape-5"></div>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <mat-icon>dashboard</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1>Admin Dashboard</h1>
+          <p>Monitor your travel platform at a glance</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="live-indicator">
+          <span class="pulse"></span>
+          Live Data
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading-card">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading dashboard data...</p>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage && !loading" class="error-container">
+      <div class="error-card">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Oops! Something went wrong</h3>
+        <p>{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div *ngIf="analytics && !loading" class="analytics-grid">
+      <div class="stat-card stat-purple">
+        <div class="stat-icon">
+          <mat-icon>travel_explore</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Total Itineraries</span>
+          <span class="stat-value">{{ analytics.totalItineraries }}</span>
+          <span class="stat-sub">Travel plans created</span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+
+      <div class="stat-card stat-green">
+        <div class="stat-icon">
+          <mat-icon>people</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Total Users</span>
+          <span class="stat-value">{{ userStats?.total || analytics.totalUsers }}</span>
+          <span class="stat-sub">
+            <span class="mini-stat active">{{ userStats?.active || 0 }} active</span>
+            <span class="mini-stat suspended" *ngIf="userStats?.suspended">{{ userStats?.suspended }} suspended</span>
+          </span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+
+      <div class="stat-card stat-pink">
+        <div class="stat-icon">
+          <mat-icon>admin_panel_settings</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">User Roles</span>
+          <span class="stat-value">{{ userStats?.admins || 0 }} / {{ userStats?.travelers || 0 }}</span>
+          <span class="stat-sub">Admins / Travelers</span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+
+      <div class="stat-card stat-cyan">
+        <div class="stat-icon">
+          <mat-icon>person_add</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">New This Week</span>
+          <span class="stat-value">{{ userStats?.recentRegistrations || 0 }}</span>
+          <span class="stat-sub">Recent registrations</span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+    </div>
+
+    <!-- User Management Section -->
+    <div *ngIf="!loading" class="section-card user-management-card">
+      <div class="section-header">
+        <div class="header-left">
+          <mat-icon>manage_accounts</mat-icon>
+          <h2>User Management</h2>
+        </div>
+        <span class="count-badge orange">{{ allUsers.length }} users</span>
+      </div>
+      <div class="section-content">
+        <div class="user-management-table">
+          <table mat-table [dataSource]="allUsers" class="full-width-table">
+            <!-- User Column -->
+            <ng-container matColumnDef="user">
+              <th mat-header-cell *matHeaderCellDef>User</th>
+              <td mat-cell *matCellDef="let user">
+                <div class="user-cell">
+                  <div class="user-avatar-sm" [class.admin]="user.role === 'Admin'" [class.suspended]="user.status === 'suspended'">
+                    <mat-icon>{{ user.role === 'Admin' ? 'admin_panel_settings' : 'person' }}</mat-icon>
+                  </div>
+                  <div class="user-info-cell">
+                    <span class="user-name">{{ user.name }}</span>
+                    <span class="user-id">#{{ user.id }}</span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Email Column -->
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let user">
+                <span class="email-text">{{ user.email }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Role Column -->
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef>Role</th>
+              <td mat-cell *matCellDef="let user">
+                <span class="role-chip" [class.admin]="user.role === 'Admin'" [class.traveler]="user.role === 'Traveler'">
+                  <mat-icon>{{ user.role === 'Admin' ? 'verified' : 'flight' }}</mat-icon>
+                  {{ user.role }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let user">
+                <span class="status-chip" [class.active]="user.status === 'active' || !user.status" [class.suspended]="user.status === 'suspended'">
+                  <span class="status-dot"></span>
+                  {{ user.status === 'suspended' ? 'Suspended' : 'Active' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Created Date Column -->
+            <ng-container matColumnDef="created">
+              <th mat-header-cell *matHeaderCellDef>Joined</th>
+              <td mat-cell *matCellDef="let user">
+                <span class="date-text">{{ user.created_at | date:'MMM d, yyyy' }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let user">
+                <div class="action-buttons" *ngIf="user.id !== currentUserId">
+                  <button mat-icon-button 
+                          [matTooltip]="user.role === 'Admin' ? 'Demote to Traveler' : 'Promote to Admin'"
+                          (click)="toggleUserRole(user)"
+                          class="action-btn role-btn">
+                    <mat-icon>{{ user.role === 'Admin' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+                  </button>
+                  <button mat-icon-button 
+                          [matTooltip]="user.status === 'suspended' ? 'Activate User' : 'Suspend User'"
+                          (click)="toggleUserStatus(user)"
+                          [class.suspend-btn]="user.status !== 'suspended'"
+                          [class.activate-btn]="user.status === 'suspended'"
+                          class="action-btn">
+                    <mat-icon>{{ user.status === 'suspended' ? 'check_circle' : 'block' }}</mat-icon>
+                  </button>
+                  <button mat-icon-button 
+                          matTooltip="Delete User"
+                          (click)="deleteUser(user)"
+                          class="action-btn delete-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                <span *ngIf="user.id === currentUserId" class="you-badge">You</span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="userDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: userDisplayedColumns;" 
+                [class.suspended-row]="row.status === 'suspended'"
+                [class.current-user-row]="row.id === currentUserId"></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collaboration Statistics Cards -->
+    <div *ngIf="collaborationStats && !loading" class="analytics-grid collaboration-stats">
+      <div class="stat-card stat-blue">
+        <div class="stat-icon">
+          <mat-icon>group_add</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Total Collaborations</span>
+          <span class="stat-value">{{ collaborationStats.total }}</span>
+          <span class="stat-sub">Sharing invitations</span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+
+      <div class="stat-card stat-yellow">
+        <div class="stat-icon">
+          <mat-icon>hourglass_empty</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Pending</span>
+          <span class="stat-value">{{ collaborationStats.pending }}</span>
+          <span class="stat-sub">Awaiting response</span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+
+      <div class="stat-card stat-green">
+        <div class="stat-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Accepted</span>
+          <span class="stat-value">{{ collaborationStats.accepted }}</span>
+          <span class="stat-sub">Active collaborations</span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+
+      <div class="stat-card stat-red">
+        <div class="stat-icon">
+          <mat-icon>cancel</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Rejected</span>
+          <span class="stat-value">{{ collaborationStats.rejected }}</span>
+          <span class="stat-sub">Declined invitations</span>
+        </div>
+        <div class="stat-decoration"></div>
+      </div>
+    </div>
+
+    <!-- Collaboration Tracking Section -->
+    <div *ngIf="!loading" class="section-card collaboration-card">
+      <div class="section-header">
+        <div class="header-left">
+          <mat-icon>share</mat-icon>
+          <h2>Collaboration Tracking</h2>
+        </div>
+        <span class="count-badge blue">{{ collaborations.length }} shares</span>
+      </div>
+      <div class="section-content">
+        <!-- Top Collaborators & Most Shared -->
+        <div class="collab-insights" *ngIf="topCollaborators.length > 0 || mostSharedItineraries.length > 0">
+          <div class="insight-card" *ngIf="topCollaborators.length > 0">
+            <h3><mat-icon>stars</mat-icon> Top Collaborators</h3>
+            <div class="insight-list">
+              <div class="insight-item" *ngFor="let user of topCollaborators; let i = index">
+                <span class="rank">#{{ i + 1 }}</span>
+                <div class="insight-info">
+                  <span class="name">{{ user.name }}</span>
+                  <span class="detail">{{ user.email }}</span>
+                </div>
+                <span class="count-chip">{{ user.collaboration_count }} trips</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="insight-card" *ngIf="mostSharedItineraries.length > 0">
+            <h3><mat-icon>trending_up</mat-icon> Most Shared Itineraries</h3>
+            <div class="insight-list">
+              <div class="insight-item" *ngFor="let trip of mostSharedItineraries; let i = index">
+                <span class="rank">#{{ i + 1 }}</span>
+                <div class="insight-info">
+                  <span class="name">{{ trip.destination }}</span>
+                  <span class="detail">by {{ trip.owner_name }}</span>
+                </div>
+                <span class="count-chip">{{ trip.share_count }} shares</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collaborations Table -->
+        <div class="collaboration-table" *ngIf="collaborations.length > 0">
+          <table mat-table [dataSource]="collaborations" class="full-width-table">
+            <!-- Itinerary Column -->
+            <ng-container matColumnDef="itinerary">
+              <th mat-header-cell *matHeaderCellDef>Itinerary</th>
+              <td mat-cell *matCellDef="let collab">
+                <div class="itinerary-cell">
+                  <mat-icon>location_on</mat-icon>
+                  <div class="itinerary-info">
+                    <span class="destination">{{ collab.destination }}</span>
+                    <span class="owner">Owner: {{ collab.owner_name }}</span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Collaborator Column -->
+            <ng-container matColumnDef="collaborator">
+              <th mat-header-cell *matHeaderCellDef>Collaborator</th>
+              <td mat-cell *matCellDef="let collab">
+                <div class="user-cell-sm">
+                  <mat-icon>person</mat-icon>
+                  <div class="user-info-sm">
+                    <span class="name">{{ collab.collaborator_name }}</span>
+                    <span class="email">{{ collab.collaborator_email }}</span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Inviter Column -->
+            <ng-container matColumnDef="inviter">
+              <th mat-header-cell *matHeaderCellDef>Invited By</th>
+              <td mat-cell *matCellDef="let collab">
+                <span class="inviter-name">{{ collab.inviter_name }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Permission Column -->
+            <ng-container matColumnDef="permission">
+              <th mat-header-cell *matHeaderCellDef>Permission</th>
+              <td mat-cell *matCellDef="let collab">
+                <span class="permission-chip" [class.edit]="collab.permission === 'edit'" [class.view]="collab.permission === 'view'">
+                  <mat-icon>{{ collab.permission === 'edit' ? 'edit' : 'visibility' }}</mat-icon>
+                  {{ collab.permission === 'edit' ? 'Can Edit' : 'View Only' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let collab">
+                <span class="collab-status-chip" 
+                      [class.pending]="collab.status === 'pending'"
+                      [class.accepted]="collab.status === 'accepted'"
+                      [class.rejected]="collab.status === 'rejected'">
+                  <mat-icon>{{ collab.status === 'pending' ? 'schedule' : collab.status === 'accepted' ? 'check_circle' : 'cancel' }}</mat-icon>
+                  {{ collab.status | titlecase }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Date Column -->
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Invited</th>
+              <td mat-cell *matCellDef="let collab">
+                <span class="date-text">{{ collab.invited_at | date:'MMM d, yyyy' }}</span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="collabDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: collabDisplayedColumns;"
+                [class.pending-row]="row.status === 'pending'"
+                [class.rejected-row]="row.status === 'rejected'"></tr>
+          </table>
+        </div>
+
+        <div *ngIf="collaborations.length === 0" class="empty-message">
+          <mat-icon>group_off</mat-icon>
+          <p>No collaborations yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div *ngIf="!loading" class="content-grid">
+      <!-- Left Column -->
+      <div class="content-left">
+        <!-- Popular Destinations -->
+        <div *ngIf="analytics" class="section-card destinations-card">
+          <div class="section-header">
+            <div class="header-left">
+              <mat-icon>public</mat-icon>
+              <h2>Popular Destinations</h2>
+            </div>
+            <span class="count-badge purple">{{ analytics.popularDestinations.length }} places</span>
+          </div>
+          <div class="section-content">
+            <div class="destination-item" *ngFor="let dest of analytics.popularDestinations; let i = index">
+              <div class="dest-rank">#{{ i + 1 }}</div>
+              <span class="dest-name">{{ dest.destination }}</span>
+              <div class="dest-bar">
+                <div class="dest-bar-fill" [style.width.%]="(dest.count / analytics.totalItineraries) * 100"></div>
+              </div>
+              <span class="dest-badge">{{ dest.count }} trips</span>
+            </div>
+            <div *ngIf="analytics.popularDestinations.length === 0" class="empty-message">
+              <mat-icon>flight_takeoff</mat-icon>
+              <p>No destinations yet</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget Stats -->
+        <div *ngIf="analytics" class="section-card budget-card">
+          <div class="section-header">
+            <div class="header-left">
+              <mat-icon>account_balance_wallet</mat-icon>
+              <h2>Budget Overview</h2>
+            </div>
+          </div>
+          <div class="section-content budget-stats">
+            <div class="budget-stat-item">
+              <mat-icon>trending_up</mat-icon>
+              <div class="budget-info">
+                <span class="budget-label">Average Budget</span>
+                <span class="budget-value">${{ analytics.averageBudget | number:'1.0-0' }}</span>
+              </div>
+            </div>
+            <div class="budget-stat-item" *ngIf="analytics.popularDestinations[0]">
+              <mat-icon>emoji_events</mat-icon>
+              <div class="budget-info">
+                <span class="budget-label">Top Destination</span>
+                <span class="budget-value">{{ analytics.popularDestinations[0]?.destination }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Table -->
+      <div class="content-right">
+        <div class="section-card table-card">
+          <div class="section-header">
+            <div class="header-left">
+              <mat-icon>list_alt</mat-icon>
+              <h2>All Itineraries</h2>
+            </div>
+            <span class="count-badge">{{ allItineraries.length }} total</span>
+          </div>
+          <div class="section-content table-wrapper">
+            <table mat-table [dataSource]="allItineraries" class="full-width-table">
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef> ID </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <span class="id-badge">#{{ element.id }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="user">
+                <th mat-header-cell *matHeaderCellDef> User </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <div class="table-user">
+                    <mat-icon>person</mat-icon>
+                    {{ element.user_name || element.user_email }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="destination">
+                <th mat-header-cell *matHeaderCellDef> Destination </th>
+                <td mat-cell *matCellDef="let element" class="destination-cell">
+                  <div class="table-destination">
+                    <mat-icon>location_on</mat-icon>
+                    {{ element.destination }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="dates">
+                <th mat-header-cell *matHeaderCellDef> Dates </th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="table-dates">
+                    <mat-icon>calendar_today</mat-icon>
+                    {{ element.start_date | date:'MMM d' }} - {{ element.end_date | date:'MMM d, y' }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="budget">
+                <th mat-header-cell *matHeaderCellDef> Budget </th>
+                <td mat-cell *matCellDef="let element" class="budget-cell">
+                  <span class="budget-badge">${{ element.budget | number:'1.0-0' }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="activities">
+                <th mat-header-cell *matHeaderCellDef> Activities </th>
+                <td mat-cell *matCellDef="let element">
+                  <span class="activity-badge">{{ element.activities?.length || 0 }}</span>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            
+            <div *ngIf="allItineraries.length === 0" class="empty-table">
+              <mat-icon>travel_explore</mat-icon>
+              <p>No itineraries found</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

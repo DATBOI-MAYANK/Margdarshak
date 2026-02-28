@@ -1,0 +1,968 @@
+<div class="page-wrapper">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-content">
+      <mat-spinner diameter="60"></mat-spinner>
+      <p>Loading your itinerary...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !loading" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>Oops! Something went wrong</h2>
+    <p>{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Go Back
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="itinerary && !loading" class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <button mat-icon-button class="back-btn" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+
+        <div class="destination-info">
+          <span class="destination-label">YOUR DESTINATION</span>
+          <h1 class="destination-name">{{ itinerary.destination }}</h1>
+          <div class="trip-dates">
+            <mat-icon>date_range</mat-icon>
+            <span
+              >{{ itinerary.start_date | date : "MMM d" }} -
+              {{ itinerary.end_date | date : "MMM d, yyyy" }}</span
+            >
+            <span class="duration-badge">{{ getDuration() }} Days</span>
+          </div>
+
+          <!-- Destination Real-Time Clock -->
+          <div class="destination-clock" *ngIf="destinationTime">
+            <div class="clock-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="clock-info">
+              <span class="clock-time">{{ destinationTime.displayTime }}</span>
+              <span class="clock-label">Local Time</span>
+            </div>
+            <div class="clock-timezone">
+              <span class="timezone-abbr">{{
+                destinationTime.abbreviation
+              }}</span>
+              <span class="timezone-offset">{{ getUtcOffset() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button
+            mat-flat-button
+            class="action-btn primary"
+            (click)="exportToPdf()"
+          >
+            <mat-icon>picture_as_pdf</mat-icon>
+            Export PDF
+          </button>
+
+          <!-- Language Selector -->
+          <div
+            class="language-selector-wrapper"
+            *ngIf="hasNonEnglishActivities()"
+          >
+            <button
+              mat-flat-button
+              class="action-btn translate"
+              (click)="toggleLanguageSelector()"
+              [disabled]="translating"
+            >
+              <mat-icon>{{
+                translating ? "hourglass_empty" : "translate"
+              }}</mat-icon>
+              {{ translating ? "Translating..." : "Translate" }}
+              <mat-icon class="dropdown-arrow">{{
+                showLanguageSelector ? "expand_less" : "expand_more"
+              }}</mat-icon>
+            </button>
+
+            <!-- Language Dropdown -->
+            <div class="language-dropdown" *ngIf="showLanguageSelector">
+              <!-- Search Input -->
+              <div class="language-search">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input
+                  type="text"
+                  [(ngModel)]="languageSearchQuery"
+                  placeholder="Search languages..."
+                  class="search-input"
+                  (click)="$event.stopPropagation()"
+                />
+                <mat-icon
+                  class="clear-icon"
+                  *ngIf="languageSearchQuery"
+                  (click)="languageSearchQuery = ''; $event.stopPropagation()"
+                  >close</mat-icon
+                >
+              </div>
+
+              <!-- Language Options -->
+              <div class="language-options-list">
+                <div
+                  class="language-option"
+                  *ngFor="let lang of getFilteredLanguages()"
+                  [class.selected]="lang.code === selectedLanguage"
+                  (click)="changeLanguage(lang.code)"
+                >
+                  <span class="lang-flag">{{ lang.flag }}</span>
+                  <span class="lang-name">{{ lang.name }}</span>
+                  <span class="lang-native">{{ lang.nativeName }}</span>
+                  <mat-icon
+                    *ngIf="lang.code === selectedLanguage"
+                    class="check-icon"
+                    >check</mat-icon
+                  >
+                </div>
+                <div
+                  class="no-results"
+                  *ngIf="getFilteredLanguages().length === 0"
+                >
+                  No languages found
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            mat-flat-button
+            class="action-btn refresh"
+            (click)="regenerateActivities()"
+            [disabled]="regenerating"
+          >
+            <mat-icon>{{
+              regenerating ? "hourglass_empty" : "refresh"
+            }}</mat-icon>
+            {{ regenerating ? "Refreshing..." : "Refresh Places" }}
+          </button>
+          <button
+            mat-flat-button
+            class="action-btn share"
+            (click)="shareItinerary()"
+          >
+            <mat-icon>share</mat-icon>
+            Share
+          </button>
+          <button mat-flat-button class="action-btn" (click)="editItinerary()">
+            <mat-icon>edit</mat-icon>
+            Edit Trip
+          </button>
+          <button
+            mat-icon-button
+            class="action-btn-icon delete"
+            (click)="deleteItinerary()"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="tab-navigation">
+      <div class="tab-container">
+        <button
+          class="tab-btn"
+          [class.active]="!showPackingList && !showCurrencyConverter && !showHotels"
+          (click)="showPackingList = false; showCurrencyConverter = false; showHotels = false"
+        >
+          <mat-icon>dashboard</mat-icon>
+          <span>Overview</span>
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="showHotels"
+          (click)="showHotelsTab()"
+        >
+          <mat-icon>hotel</mat-icon>
+          <span>Hotels</span>
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="showPackingList"
+          (click)="showPackingList = true; showCurrencyConverter = false; showHotels = false"
+        >
+          <mat-icon>checklist</mat-icon>
+          <span>Packing List</span>
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="showCurrencyConverter"
+          (click)="showCurrencyConverter = true; showPackingList = false; showHotels = false"
+        >
+          <mat-icon>currency_exchange</mat-icon>
+          <span>Currency</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ==================== OVERVIEW TAB ==================== -->
+    <div
+      class="tab-content overview-tab"
+      *ngIf="!showPackingList && !showCurrencyConverter && !showHotels"
+    >
+      <!-- Stats Grid -->
+      <section class="stats-grid">
+        <div class="stat-card gradient-blue">
+          <div class="stat-icon-wrap">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Budget</span>
+            <span class="stat-value"
+              >${{ itinerary.budget | number : "1.0-0" }}</span
+            >
+          </div>
+        </div>
+
+        <div class="stat-card gradient-purple">
+          <div class="stat-icon-wrap">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Estimated Cost</span>
+            <span class="stat-value"
+              >${{ calculateTotalExpenses() | number : "1.0-0" }}</span
+            >
+          </div>
+        </div>
+
+        <div
+          class="stat-card"
+          [ngClass]="
+            getRemainingBudget() >= 0 ? 'gradient-green' : 'gradient-red'
+          "
+        >
+          <div class="stat-icon-wrap">
+            <mat-icon>{{
+              getRemainingBudget() >= 0 ? "savings" : "warning"
+            }}</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">{{
+              getRemainingBudget() >= 0 ? "Remaining" : "Over Budget"
+            }}</span>
+            <span class="stat-value"
+              >${{ getRemainingBudget() | number : "1.0-0" }}</span
+            >
+          </div>
+        </div>
+
+        <div class="stat-card gradient-orange">
+          <div class="stat-icon-wrap">
+            <mat-icon>local_activity</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Activities</span>
+            <span class="stat-value">{{
+              itinerary.activities?.length || 0
+            }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Insights Row -->
+      <section class="insights-row">
+        <!-- Weather Card -->
+        <div class="insight-card weather-card" *ngIf="currentWeather">
+          <div class="card-header">
+            <h3><mat-icon>wb_sunny</mat-icon> Weather Forecast</h3>
+            <span class="location-tag"
+              >{{ currentWeather.city
+              }}{{
+                currentWeather.country ? ", " + currentWeather.country : ""
+              }}</span
+            >
+          </div>
+          <div class="card-content">
+            <div class="current-weather-display">
+              <div class="weather-primary">
+                <div class="weather-icon-wrap">
+                  <mat-icon class="weather-main-icon">{{
+                    currentWeather.icon
+                  }}</mat-icon>
+                </div>
+                <div class="temp-display">
+                  <span class="temp-num">{{ currentWeather.temp }}</span>
+                  <span class="temp-unit">°C</span>
+                </div>
+              </div>
+              <div class="weather-secondary">
+                <span class="weather-condition">{{
+                  currentWeather.description
+                }}</span>
+                <div class="weather-extras">
+                  <span
+                    ><mat-icon>water_drop</mat-icon>
+                    {{ currentWeather.humidity }}%</span
+                  >
+                  <span
+                    ><mat-icon>air</mat-icon>
+                    {{ currentWeather.windSpeed }} km/h</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="forecast-row" *ngIf="weatherForecast.length > 0">
+              <div
+                class="forecast-day"
+                *ngFor="let day of weatherForecast.slice(0, 5)"
+              >
+                <span class="day-name">{{ day.date | date : "EEE" }}</span>
+                <div class="day-icon-wrap">
+                  <mat-icon class="forecast-icon">{{ day.icon }}</mat-icon>
+                </div>
+                <span class="day-condition">{{ day.description }}</span>
+                <span class="day-temps"
+                  >{{ day.tempMax }}°/{{ day.tempMin }}°</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget Chart -->
+        <div class="insight-card chart-card budget-chart-card">
+          <div class="card-header">
+            <h3><mat-icon>pie_chart</mat-icon> Budget Overview</h3>
+            <span class="budget-tag">{{ currencyCode }}</span>
+          </div>
+          <div class="card-content">
+            <div class="chart-content">
+              <canvas
+                baseChart
+                [data]="budgetChartData"
+                [options]="pieChartOptions"
+                type="pie"
+              >
+              </canvas>
+            </div>
+            <div class="budget-summary">
+              <div class="budget-stat">
+                <span class="stat-label">Budget</span>
+                <span class="stat-value"
+                  >${{ itinerary.budget | number : "1.0-0" }}</span
+                >
+              </div>
+              <div class="budget-stat">
+                <span class="stat-label">Spent</span>
+                <span class="stat-value"
+                  >${{ getTotalCost() | number : "1.0-0" }}</span
+                >
+              </div>
+              <div class="budget-stat">
+                <span class="stat-label">Left</span>
+                <span class="stat-value"
+                  >${{
+                    itinerary.budget - getTotalCost() | number : "1.0-0"
+                  }}</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Spending Chart -->
+        <div class="insight-card chart-card spending-chart-card wide">
+          <div class="card-header">
+            <h3><mat-icon>bar_chart</mat-icon> Daily Spending</h3>
+            <span class="spending-tag">By Day</span>
+          </div>
+          <div class="card-content">
+            <div class="chart-content">
+              <canvas
+                baseChart
+                [data]="dailySpendingData"
+                [options]="barChartOptions"
+                type="bar"
+              >
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Daily Schedule Section -->
+      <section class="schedule-section">
+        <div class="section-header">
+          <div class="header-left">
+            <h2><mat-icon>event_note</mat-icon> Daily Schedule</h2>
+            <span class="count-badge"
+              >{{ itinerary.activities?.length || 0 }} activities</span
+            >
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          class="empty-state"
+          *ngIf="!itinerary.activities || itinerary.activities.length === 0"
+        >
+          <div class="empty-icon">
+            <mat-icon>explore_off</mat-icon>
+          </div>
+          <h3>No Activities Planned</h3>
+          <p>Start building your perfect trip by adding activities.</p>
+          <button mat-raised-button color="primary" (click)="editItinerary()">
+            <mat-icon>add_circle</mat-icon>
+            Add Activities
+          </button>
+        </div>
+
+        <!-- Timeline -->
+        <div class="schedule-timeline" *ngIf="groupedActivities.length > 0">
+          <div class="day-section" *ngFor="let dayGroup of groupedActivities">
+            <!-- Day Header -->
+            <div class="day-header-bar">
+              <div class="day-indicator">
+                <span class="day-number">{{ dayGroup.day }}</span>
+                <span class="day-label">DAY</span>
+              </div>
+              <div class="day-details">
+                <span class="day-name">{{ getDayName(dayGroup.date) }}</span>
+                <span class="day-date">{{
+                  dayGroup.date | date : "MMMM d, yyyy"
+                }}</span>
+              </div>
+              <div class="day-weather-badge" *ngIf="dayGroup.weather">
+                <mat-icon class="weather-badge-icon">{{
+                  dayGroup.weather.icon
+                }}</mat-icon>
+                <span>{{ dayGroup.weather.tempMax }}°</span>
+              </div>
+              <div class="day-cost-badge">
+                <mat-icon>payments</mat-icon>
+                <span>${{ dayGroup.totalCost | number : "1.0-0" }}</span>
+              </div>
+            </div>
+
+            <!-- Activities -->
+            <div class="activities-list">
+              <div
+                class="activity-item"
+                *ngFor="let activity of dayGroup.activities; let isLast = last"
+              >
+                <div class="timeline-connector">
+                  <div class="connector-dot"></div>
+                  <div class="connector-line" *ngIf="!isLast"></div>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-time-badge">
+                    <mat-icon>schedule</mat-icon>
+                    {{ activity.time || "09:00" }}
+                  </div>
+                  <div class="activity-details">
+                    <h4 class="activity-name">
+                      {{ getDisplayName(activity) }}
+                      <mat-icon
+                        class="translated-icon"
+                        *ngIf="isTranslated(activity)"
+                        matTooltip="Translated from: {{
+                          getOriginalName(activity)
+                        }}"
+                        >translate</mat-icon
+                      >
+                    </h4>
+                    <div class="activity-meta">
+                      <span class="meta-tag">
+                        <mat-icon>timelapse</mat-icon>
+                        {{ activity.duration || "2 hours" }}
+                      </span>
+                      <span
+                        class="meta-tag cost"
+                        *ngIf="activity.estimatedCost"
+                      >
+                        <mat-icon>attach_money</mat-icon>
+                        ${{ activity.estimatedCost | number : "1.0-0" }}
+                      </span>
+                      <span
+                        class="meta-tag free"
+                        *ngIf="!activity.estimatedCost"
+                      >
+                        <mat-icon>star</mat-icon>
+                        Free
+                      </span>
+                      <span class="meta-tag location" *ngIf="activity.location">
+                        <mat-icon>place</mat-icon>
+                        {{ activity.location }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notes Section -->
+      <section class="notes-section" *ngIf="itinerary.notes">
+        <div class="notes-card">
+          <div class="card-header">
+            <h3><mat-icon>sticky_note_2</mat-icon> Trip Notes</h3>
+          </div>
+          <div class="card-content">
+            <p>{{ itinerary.notes }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trip Photos Section -->
+      <section class="media-gallery-section" *ngIf="hasMediaFiles()">
+        <div class="gallery-card">
+          <div class="card-header">
+            <h3><mat-icon>photo_library</mat-icon> Trip Photos</h3>
+            <span class="photo-count">{{ getMediaFiles().length }} photos</span>
+          </div>
+          <div class="gallery-grid">
+            <div
+              class="gallery-item"
+              *ngFor="let photo of getMediaFiles(); let i = index"
+              (click)="openLightbox(i)"
+            >
+              <img
+                [src]="getMediaUrl(photo)"
+                [alt]="'Trip photo ' + (i + 1)"
+                loading="lazy"
+              />
+              <div class="gallery-overlay">
+                <mat-icon>zoom_in</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lightbox Modal -->
+      <div
+        class="lightbox-overlay"
+        *ngIf="lightboxOpen"
+        (click)="closeLightbox()"
+      >
+        <button
+          mat-icon-button
+          class="lightbox-close"
+          (click)="closeLightbox()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          class="lightbox-nav prev"
+          (click)="prevImage($event)"
+          *ngIf="getMediaFiles().length > 1"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <img
+          [src]="getMediaUrl(getMediaFiles()[lightboxIndex])"
+          [alt]="'Trip photo'"
+          class="lightbox-image"
+          (click)="$event.stopPropagation()"
+        />
+        <button
+          mat-icon-button
+          class="lightbox-nav next"
+          (click)="nextImage($event)"
+          *ngIf="getMediaFiles().length > 1"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <div class="lightbox-counter">
+          {{ lightboxIndex + 1 }} / {{ getMediaFiles().length }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== HOTELS TAB ==================== -->
+    <div class="tab-content hotels-tab" *ngIf="showHotels">
+      <section class="hotels-section">
+        <div class="section-header">
+          <div class="header-left">
+            <h2><mat-icon>hotel</mat-icon> Nearby Stays & Places</h2>
+            <span class="count-badge" *ngIf="filteredHotels.length > 0">{{ filteredHotels.length }} found</span>
+          </div>
+          <div class="header-right">
+            <mat-form-field appearance="outline" class="category-select">
+              <mat-label>Category</mat-label>
+              <mat-select [(ngModel)]="hotelSearchCategory" (selectionChange)="onHotelCategoryChange()">
+                <mat-option value="hotels">
+                  <mat-icon>hotel</mat-icon> Hotels & Stays
+                </mat-option>
+                <mat-option value="restaurants">
+                  <mat-icon>restaurant</mat-icon> Restaurants
+                </mat-option>
+                <mat-option value="cafes">
+                  <mat-icon>local_cafe</mat-icon> Cafes
+                </mat-option>
+                <mat-option value="attractions">
+                  <mat-icon>attractions</mat-icon> Attractions
+                </mat-option>
+                <mat-option value="shopping">
+                  <mat-icon>shopping_bag</mat-icon> Shopping
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Filter & Sort Bar -->
+        <div class="hotel-filters" *ngIf="!loadingHotels && hotels.length > 0">
+          <!-- Star Rating Filter -->
+          <div class="filter-group" *ngIf="hotelSearchCategory === 'hotels'">
+            <span class="filter-label">Stars:</span>
+            <div class="star-chips">
+              <button class="star-chip" [class.active]="hotelStarFilter === 0" (click)="setStarFilter(0)">
+                All
+              </button>
+              <button *ngFor="let s of [3, 4, 5]" class="star-chip"
+                      [class.active]="hotelStarFilter === s" (click)="setStarFilter(s)">
+                {{ s }}★+
+              </button>
+            </div>
+          </div>
+
+          <!-- Sort Options -->
+          <div class="filter-group">
+            <span class="filter-label">Sort:</span>
+            <div class="sort-chips">
+              <button class="sort-chip" [class.active]="hotelSortMode === 'recommended'" (click)="setHotelSort('recommended')">
+                <mat-icon>auto_awesome</mat-icon> Best Match
+              </button>
+              <button class="sort-chip" [class.active]="hotelSortMode === 'nearest'" (click)="setHotelSort('nearest')">
+                <mat-icon>near_me</mat-icon> Nearest
+              </button>
+              <button class="sort-chip" [class.active]="hotelSortMode === 'rated'" (click)="setHotelSort('rated')">
+                <mat-icon>star</mat-icon> Top Rated
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loadingHotels" class="hotels-loading">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Searching for places near {{ itinerary.destination }}...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loadingHotels && filteredHotels.length === 0 && hotels.length > 0" class="hotels-empty">
+          <mat-icon>filter_list_off</mat-icon>
+          <h3>No results for this filter</h3>
+          <p>Try lowering the star rating or changing the sort.</p>
+        </div>
+
+        <div *ngIf="!loadingHotels && hotels.length === 0" class="hotels-empty">
+          <mat-icon>search_off</mat-icon>
+          <h3>No places found</h3>
+          <p>Try a different category or check the destination name.</p>
+        </div>
+
+        <!-- Hotel Grid -->
+        <div class="hotel-grid" *ngIf="!loadingHotels && filteredHotels.length > 0">
+          <div class="hotel-card" *ngFor="let hotel of filteredHotels; let i = index; trackBy: trackByHotelName">
+            <!-- Recommendation Badge -->
+            <div class="recommended-badge" *ngIf="i === 0 && hotelSortMode === 'recommended'">
+              <mat-icon>thumb_up</mat-icon> Top Pick
+            </div>
+
+            <!-- Hotel Photo -->
+            <div class="hotel-media" (click)="openInMaps(hotel.lat, hotel.lon, hotel.name)">
+              <img [src]="getHotelPhotoUrl(hotel)" 
+                   [alt]="hotel.name"
+                   loading="lazy"
+                   class="hotel-photo"
+                   (error)="onHotelImageError(hotel)">
+
+              <!-- Gradient placeholder behind (visible while loading or on error) -->
+              <div class="hotel-placeholder"
+                   [style.background]="getPlaceholderGradient(hotel)">
+                <mat-icon>{{ getPlaceholderIcon(hotel) }}</mat-icon>
+                <span>{{ getAccommodationType(hotel.categories) }}</span>
+              </div>
+
+              <div class="map-overlay">
+                <mat-icon>open_in_new</mat-icon>
+                <span>View on Maps</span>
+              </div>
+            </div>
+
+            <!-- Hotel Info -->
+            <div class="hotel-info">
+              <div class="hotel-type-badge">
+                {{ getAccommodationType(hotel.categories) }}
+              </div>
+
+              <h3 class="hotel-name">{{ hotel.name }}</h3>
+
+              <p class="hotel-address" *ngIf="hotel.address">
+                <mat-icon>location_on</mat-icon>
+                {{ hotel.address }}
+              </p>
+
+              <div class="hotel-details">
+                <!-- Stars -->
+                <div class="hotel-stars" *ngIf="hotel.stars">
+                  <mat-icon *ngFor="let s of getStarsArray(hotel.stars)" class="star-icon">star</mat-icon>
+                  <span class="star-count">{{ hotel.stars }}-star</span>
+                </div>
+
+                <!-- Rating -->
+                <div class="hotel-rating" *ngIf="hotel.rating">
+                  <span class="rating-value">{{ hotel.rating | number: '1.1-1' }}</span>
+                  <span class="rating-label">/ 5</span>
+                </div>
+
+                <!-- Price Estimate -->
+                <div class="hotel-price" *ngIf="hotel.stars && hotelSearchCategory === 'hotels'">
+                  <span class="price-value">{{ getEstimatedPriceRange(hotel) }}</span>
+                </div>
+
+                <!-- Distance -->
+                <span class="hotel-distance" *ngIf="hotel.distance">
+                  <mat-icon>near_me</mat-icon>
+                  {{ formatDistance(hotel.distance) }}
+                </span>
+              </div>
+
+              <!-- Actions -->
+              <div class="hotel-actions">
+                <a *ngIf="hotel.website" 
+                   [href]="hotel.website" target="_blank" rel="noopener noreferrer"
+                   mat-stroked-button color="primary" class="hotel-action-btn">
+                  <mat-icon>language</mat-icon> Website
+                </a>
+                <a *ngIf="hotel.phone" 
+                   [href]="'tel:' + hotel.phone"
+                   mat-stroked-button class="hotel-action-btn">
+                  <mat-icon>phone</mat-icon> Call
+                </a>
+                <button mat-stroked-button class="hotel-action-btn"
+                        (click)="openInMaps(hotel.lat, hotel.lon, hotel.name)">
+                  <mat-icon>directions</mat-icon> Directions
+                </button>
+                <a [href]="getGooglePhotosUrl(hotel)" target="_blank" rel="noopener noreferrer"
+                   mat-stroked-button class="hotel-action-btn photos-btn"
+                   (click)="$event.stopPropagation()">
+                  <mat-icon>photo_library</mat-icon> Photos
+                </a>
+              </div>
+
+              <!-- Booking Links -->
+              <div class="booking-links" *ngIf="hotelSearchCategory === 'hotels'">
+                <span class="booking-label">Book on:</span>
+                <div class="booking-buttons">
+                  <a *ngFor="let link of getCachedBookingLinks(hotel)"
+                     [href]="link.url" target="_blank" rel="noopener noreferrer"
+                     class="booking-btn"
+                     [style.background]="link.color"
+                     (click)="$event.stopPropagation()">
+                    <mat-icon>{{ link.icon }}</mat-icon>
+                    <span class="booking-name">{{ link.name }}</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== PACKING LIST TAB ==================== -->
+    <div class="tab-content packing-tab" *ngIf="showPackingList">
+      <section class="packing-section">
+        <div class="section-header">
+          <div class="header-left">
+            <h2><mat-icon>luggage</mat-icon> Packing Checklist</h2>
+          </div>
+          <div class="progress-display">
+            <div class="progress-bar-container">
+              <mat-progress-bar
+                mode="determinate"
+                [value]="getPackingProgress()"
+              ></mat-progress-bar>
+            </div>
+            <span class="progress-label"
+              >{{ getPackingProgress() }}% packed</span
+            >
+          </div>
+        </div>
+
+        <div class="packing-categories">
+          <div class="category-card" *ngFor="let category of packingCategories">
+            <div class="category-header">
+              <mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
+              <h4>{{ category }}</h4>
+              <span class="item-count">{{
+                getItemsByCategory(category).length
+              }}</span>
+            </div>
+            <div class="category-items">
+              <mat-checkbox
+                *ngFor="let item of getItemsByCategory(category)"
+                [checked]="item.packed"
+                (change)="togglePackedItem(item)"
+                [class.is-packed]="item.packed"
+              >
+                {{ item.name }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== CURRENCY TAB ==================== -->
+    <div class="tab-content currency-tab" *ngIf="showCurrencyConverter">
+
+      <section class="currency-section">
+        <div class="section-header">
+          <div class="header-left">
+            <h2><mat-icon>currency_exchange</mat-icon> Currency Converter</h2>
+          </div>
+        </div>
+
+        <div class="currency-layout">
+          <!-- Live Rate Card -->
+          <div class="rate-card">
+            <div class="rate-header">Live Exchange Rate</div>
+            <div class="rate-display">
+              <span class="rate-amount">1</span>
+              <span class="rate-currency">{{ baseCurrency }}</span>
+              <mat-icon>east</mat-icon>
+              <span class="rate-amount">{{
+                exchangeRate | number : "1.4-4"
+              }}</span>
+              <span class="rate-currency">{{ targetCurrency }}</span>
+            </div>
+          </div>
+
+          <!-- Converter Card -->
+          <div class="converter-card">
+            <div class="converter-row">
+              <div class="converter-field">
+                <label>From</label>
+                <mat-form-field appearance="outline">
+                  <mat-select
+                    [(ngModel)]="baseCurrency"
+                    (selectionChange)="onCurrencyChange()"
+                  >
+                    <mat-option *ngFor="let c of currencies" [value]="c.code">
+                      {{ c.symbol }} {{ c.code }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="amount-field">
+                  <input
+                    matInput
+                    type="number"
+                    placeholder="Amount"
+                    [(ngModel)]="convertAmount"
+                    (ngModelChange)="calculateConversion()"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="converter-swap">
+                <mat-icon>sync_alt</mat-icon>
+              </div>
+
+              <div class="converter-field">
+                <label>To</label>
+                <mat-form-field appearance="outline">
+                  <mat-select
+                    [(ngModel)]="targetCurrency"
+                    (selectionChange)="onCurrencyChange()"
+                  >
+                    <mat-option *ngFor="let c of currencies" [value]="c.code">
+                      {{ c.symbol }} {{ c.code }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div class="result-field">
+                  <span class="result-value"
+                    >{{ getCurrencySymbol(targetCurrency)
+                    }}{{ convertedAmount | number : "1.2-2" }}</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Budget Conversion Card -->
+          <div class="budget-card">
+            <div class="budget-header">
+              <mat-icon>account_balance</mat-icon>
+              <h4>Trip Budget in {{ targetCurrency }}</h4>
+            </div>
+            <div class="budget-rows">
+              <div class="budget-row">
+                <span class="row-label">Budget</span>
+                <div class="row-values">
+                  <span class="val-original"
+                    >{{ getCurrencySymbol(baseCurrency)
+                    }}{{ itinerary.budget | number : "1.2-2" }}</span
+                  >
+                  <mat-icon>arrow_right_alt</mat-icon>
+                  <span class="val-converted"
+                    >{{ getCurrencySymbol(targetCurrency)
+                    }}{{ getConvertedBudget() | number : "1.2-2" }}</span
+                  >
+                </div>
+              </div>
+              <div class="budget-row">
+                <span class="row-label">Expenses</span>
+                <div class="row-values">
+                  <span class="val-original"
+                    >{{ getCurrencySymbol(baseCurrency)
+                    }}{{ calculateTotalExpenses() | number : "1.2-2" }}</span
+                  >
+                  <mat-icon>arrow_right_alt</mat-icon>
+                  <span class="val-converted"
+                    >{{ getCurrencySymbol(targetCurrency)
+                    }}{{ getConvertedExpenses() | number : "1.2-2" }}</span
+                  >
+                </div>
+              </div>
+              <div class="budget-row highlight">
+                <span class="row-label">Remaining</span>
+                <div class="row-values">
+                  <span class="val-original"
+                    >{{ getCurrencySymbol(baseCurrency)
+                    }}{{ getRemainingBudget() | number : "1.2-2" }}</span
+                  >
+                  <mat-icon>arrow_right_alt</mat-icon>
+                  <span class="val-converted"
+                    >{{ getCurrencySymbol(targetCurrency)
+                    }}{{
+                      getRemainingBudget() * exchangeRate | number : "1.2-2"
+                    }}</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Collaboration Chat for shared itineraries -->
+<app-collaboration-chat
+  *ngIf="itinerary && itinerary.id && hasCollaborators"
+  [itineraryId]="itinerary.id!"
+>
+</app-collaboration-chat>

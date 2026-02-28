@@ -1,0 +1,141 @@
+<mat-toolbar class="navbar">
+  <div class="brand" routerLink="/">
+    <div class="logo-icon">
+      <img src="assets/logo/logo.png" alt="App Logo" class="brand-logo" />
+    </div>
+  </div>
+
+  <span class="spacer"></span>
+
+  <div *ngIf="isLoggedIn" class="nav-actions">
+    <button
+      mat-button
+      routerLink="/itineraries/new"
+      routerLinkActive="active"
+      class="nav-btn create-btn"
+    >
+      <mat-icon>add_location_alt</mat-icon>
+      <span>New Trip</span>
+    </button>
+
+    <button
+      mat-button
+      routerLink="/itineraries"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-btn"
+    >
+      <mat-icon>map</mat-icon>
+      <span>My Trips</span>
+    </button>
+
+    <button
+      mat-button
+      *ngIf="isAdmin"
+      routerLink="/dashboard"
+      routerLinkActive="active"
+      class="nav-btn"
+    >
+      <mat-icon>analytics</mat-icon>
+      <span>Dashboard</span>
+    </button>
+
+    <div class="icon-actions">
+      <!-- Messages Icon -->
+      <button
+        mat-icon-button
+        routerLink="/messages"
+        matTooltip="Messages"
+        class="icon-btn"
+        [matBadge]="notificationCount > 0 ? notificationCount : null"
+        matBadgeColor="warn"
+        matBadgeSize="small"
+      >
+        <mat-icon>mail</mat-icon>
+      </button>
+
+      <!-- Admin Messages -->
+      <button
+        mat-icon-button
+        *ngIf="isAdmin"
+        routerLink="/admin/messages"
+        matTooltip="Admin Center"
+        class="icon-btn"
+      >
+        <mat-icon>support_agent</mat-icon>
+      </button>
+
+      <!-- Pending Invites -->
+      <app-pending-invites></app-pending-invites>
+    </div>
+
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-btn">
+      <div class="avatar-wrapper">
+        <div class="user-avatar" [class.has-image]="getProfilePictureUrl()">
+          <img
+            *ngIf="getProfilePictureUrl()"
+            [src]="getProfilePictureUrl()"
+            alt="Profile"
+          />
+          <span *ngIf="!getProfilePictureUrl()" class="initials">{{
+            currentUser?.name?.charAt(0)?.toUpperCase()
+          }}</span>
+        </div>
+        <mat-icon class="dropdown-indicator">arrow_drop_down</mat-icon>
+      </div>
+    </button>
+    <mat-menu #userMenu="matMenu" class="user-menu">
+      <div class="user-info">
+        <div
+          class="user-avatar-large"
+          [class.has-image]="getProfilePictureUrl()"
+        >
+          <img
+            *ngIf="getProfilePictureUrl()"
+            [src]="getProfilePictureUrl()"
+            alt="Profile"
+          />
+          <mat-icon *ngIf="!getProfilePictureUrl()">person</mat-icon>
+        </div>
+        <p class="name">{{ currentUser?.name }}</p>
+        <p class="email">{{ currentUser?.email }}</p>
+        <span class="role-badge" [class.admin]="currentUser?.role === 'Admin'">
+          {{ currentUser?.role }}
+        </span>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="navigateTo('/itineraries')">
+        <mat-icon>luggage</mat-icon>
+        My Itineraries
+      </button>
+      <button mat-menu-item routerLink="/profile">
+        <mat-icon>account_circle</mat-icon>
+        My Profile
+      </button>
+      <button
+        mat-menu-item
+        routerLink="/profile"
+        [queryParams]="{ tab: 'password' }"
+      >
+        <mat-icon>lock</mat-icon>
+        Change Password
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()" class="logout-btn">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    </mat-menu>
+  </div>
+
+  <div *ngIf="!isLoggedIn" class="auth-actions">
+    <button mat-button routerLink="/login" class="login-btn">
+      <mat-icon>login</mat-icon>
+      Login
+    </button>
+    <button mat-raised-button routerLink="/register" class="register-btn">
+      <mat-icon>person_add</mat-icon>
+      Register
+    </button>
+  </div>
+</mat-toolbar>

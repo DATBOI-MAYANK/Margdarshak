@@ -1,0 +1,9 @@
+node_modules
+.git
+.angular
+*.log
+.env
+.env.local
+src/**/*.spec.ts
+e2e
+coverage

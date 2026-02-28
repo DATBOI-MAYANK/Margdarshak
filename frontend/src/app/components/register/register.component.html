@@ -1,0 +1,170 @@
+<div class="register-page">
+  <div class="register-card">
+    <!-- Left - Brand Side -->
+    <div class="brand-side">
+      <div class="brand-content">
+        <div class="brand-top">
+          <div class="logo-box">
+            <img src="assets/logo/logo1.png" alt="Voyage.IQ" class="logo-img" />
+          </div>
+          <div>
+            <h1 class="app-name">Voyage<span class="dot">.IQ</span></h1>
+            <p class="app-desc">Plan smarter. Travel better.</p>
+          </div>
+        </div>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>person_add</mat-icon>
+            </div>
+            <div>
+              <p class="feature-title">Free Account</p>
+              <p class="feature-sub">Create your account in seconds, no cost</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>map</mat-icon>
+            </div>
+            <div>
+              <p class="feature-title">Unlimited Trips</p>
+              <p class="feature-sub">Plan as many itineraries as you need</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-box">
+              <mat-icon>savings</mat-icon>
+            </div>
+            <div>
+              <p class="feature-title">Budget Tracking</p>
+              <p class="feature-sub">Stay on top of your travel expenses</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="brand-bottom">
+          <div class="review-row">
+            <div class="stars">
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star</mat-icon>
+              <mat-icon>star_half</mat-icon>
+            </div>
+            <span class="rating-text">4.8 / 5</span>
+          </div>
+          <p class="trust-text">Trusted by 10,000+ travelers</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right - Form Side -->
+    <div class="form-side">
+      <div class="form-content">
+        <div class="form-top">
+          <h2>Create account</h2>
+          <p>Fill in your details to get started</p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" autocomplete="off">
+          <div class="form-field">
+            <label for="name">Full name</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="name" formControlName="name" placeholder="John Doe" />
+              <mat-error *ngIf="name?.hasError('required')">Name is required</mat-error>
+              <mat-error *ngIf="name?.hasError('minlength')">At least 2 characters</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-field">
+            <label for="email">Email</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="email" type="email" formControlName="email" placeholder="name@example.com" />
+              <mat-error *ngIf="email?.hasError('required')">Email is required</mat-error>
+              <mat-error *ngIf="email?.hasError('email')">Enter a valid email</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="password">Password</label>
+              <div class="password-field">
+                <mat-form-field appearance="outline" class="w-full">
+                  <input
+                    matInput
+                    id="password"
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    placeholder="Min 6 characters"
+                  />
+                  <mat-error *ngIf="password?.hasError('required')">Required</mat-error>
+                  <mat-error *ngIf="password?.hasError('minlength')">Min 6 chars</mat-error>
+                </mat-form-field>
+                <button type="button" class="eye-btn" (click)="togglePassword()" tabindex="-1">
+                  <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="confirmPassword">Confirm password</label>
+              <div class="password-field">
+                <mat-form-field appearance="outline" class="w-full">
+                  <input
+                    matInput
+                    id="confirmPassword"
+                    [type]="showConfirmPassword ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    placeholder="Re-enter password"
+                  />
+                  <mat-error *ngIf="confirmPassword?.hasError('required')">Required</mat-error>
+                  <mat-error *ngIf="confirmPassword?.hasError('passwordMismatch')">Passwords don't match</mat-error>
+                </mat-form-field>
+                <button type="button" class="eye-btn" (click)="toggleConfirmPassword()" tabindex="-1">
+                  <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="contact">Contact <span class="optional-tag">optional</span></label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input matInput id="contact" formControlName="contact_info" placeholder="Phone number" />
+            </mat-form-field>
+          </div>
+
+          <div *ngIf="errorMessage" class="msg msg-error">
+            <mat-icon>error_outline</mat-icon>
+            {{ errorMessage }}
+          </div>
+
+          <button
+            mat-flat-button
+            type="submit"
+            [disabled]="loading || registerForm.invalid"
+            class="sign-up-btn"
+          >
+            <span *ngIf="!loading">Create account</span>
+            <span *ngIf="loading" class="loading-state">
+              <mat-spinner diameter="18"></mat-spinner>
+              Creating account...
+            </span>
+          </button>
+        </form>
+
+        <div class="form-bottom">
+          <div class="separator">
+            <div class="sep-line"></div>
+            <span>or</span>
+            <div class="sep-line"></div>
+          </div>
+          <a routerLink="/login" class="sign-in-link">
+            Sign in to existing account
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

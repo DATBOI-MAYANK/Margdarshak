@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Generated Mapbox config (contains API key, created by scripts/set-env.js)
+frontend/src/app/config/mapbox.config.ts
+
+# Build output
+dist/
+build/
+
+# Uploads (profile pics now stored as base64 in DB)
+uploads/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Duplicate/generated assets
+frontend/src/assets/
+frontend/.angular/
+
+# Windows copy artifacts
+*- Copy.*
+* - Copy.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

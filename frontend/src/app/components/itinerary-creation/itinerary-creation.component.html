@@ -1,0 +1,383 @@
+<div class="bg-shapes">
+  <div class="shape shape-1"></div>
+  <div class="shape shape-2"></div>
+  <div class="shape shape-3"></div>
+  <div class="shape shape-4"></div>
+  <div class="shape shape-5"></div>
+</div>
+
+<div class="creation-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Create New Travel Itinerary</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="itineraryForm">
+        <!-- Basic Information -->
+        <h3>Basic Information</h3>
+
+        <!-- Source Location Section -->
+        <div class="source-section">
+          <div class="source-row">
+            <mat-form-field
+              appearance="outline"
+              class="full-width source-display-field"
+              *ngIf="sourceMode === 'current'"
+            >
+              <mat-label>Starting From</mat-label>
+              <input
+                matInput
+                [value]="sourceLocationName || 'Detecting location...'"
+                readonly
+              />
+              <div matSuffix class="source-suffix">
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="source-action-btn"
+                  (click)="refreshSourceLocation(); $event.stopPropagation()"
+                  [disabled]="isRefreshingSource"
+                  title="Refresh location"
+                >
+                  <mat-icon [class.spin-icon]="isRefreshingSource">my_location</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="source-action-btn"
+                  (click)="setSourceMode('custom'); $event.stopPropagation()"
+                  title="Enter custom location"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+              <mat-hint>
+                <span class="live-indicator" *ngIf="sourceLocationName">
+                  <span class="live-dot"></span> Live
+                </span>
+                <span *ngIf="!sourceLocationName">Detecting your GPS location...</span>
+              </mat-hint>
+            </mat-form-field>
+
+            <mat-form-field
+              appearance="outline"
+              class="full-width source-display-field"
+              *ngIf="sourceMode === 'custom'"
+            >
+              <mat-label>Starting From</mat-label>
+              <input
+                matInput
+                [formControl]="sourceControl"
+                placeholder="Type a city or location..."
+                [matAutocomplete]="sourceAuto"
+              />
+              <div matSuffix class="source-suffix">
+                <mat-spinner
+                  *ngIf="isSourceSearching"
+                  diameter="20"
+                  class="search-spinner"
+                ></mat-spinner>
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="source-action-btn"
+                  *ngIf="!isSourceSearching"
+                  (click)="setSourceMode('current'); $event.stopPropagation()"
+                  title="Use current location"
+                >
+                  <mat-icon>gps_fixed</mat-icon>
+                </button>
+              </div>
+              <mat-autocomplete
+                #sourceAuto="matAutocomplete"
+                class="destination-autocomplete"
+                (optionSelected)="onSourceSelected($event)"
+              >
+                <mat-option
+                  *ngFor="let city of filteredSourceCities | async"
+                  [value]="city"
+                >
+                  <mat-icon class="location-icon">location_on</mat-icon>
+                  <span class="city-name">{{ city }}</span>
+                </mat-option>
+              </mat-autocomplete>
+              <mat-hint>Search for your starting location</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="field-divider">
+          <span class="divider-dot"></span>
+          <span class="divider-dot"></span>
+          <mat-icon class="divider-arrow">south</mat-icon>
+          <span class="divider-dot"></span>
+          <span class="divider-dot"></span>
+        </div>
+
+        <mat-form-field
+          appearance="outline"
+          class="full-width destination-field"
+        >
+          <mat-label>Destination</mat-label>
+          <input
+            matInput
+            formControlName="destination"
+            placeholder="Type a city or country..."
+            [matAutocomplete]="auto"
+          />
+          <mat-icon matSuffix class="search-icon" *ngIf="!isSearching">travel_explore</mat-icon>
+          <mat-spinner
+            matSuffix
+            *ngIf="isSearching"
+            diameter="20"
+            class="search-spinner"
+          ></mat-spinner>
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            class="destination-autocomplete"
+            (optionSelected)="onDestinationSelected($event)"
+          >
+            <mat-option
+              *ngFor="let city of filteredCities | async"
+              [value]="city"
+            >
+              <mat-icon class="location-icon">location_on</mat-icon>
+              <span class="city-name">{{ city }}</span>
+            </mat-option>
+          </mat-autocomplete>
+          <mat-hint>Start typing to search cities worldwide</mat-hint>
+          <mat-error
+            *ngIf="itineraryForm.get('destination')?.hasError('required')"
+          >
+            Destination is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Destination Map -->
+        <div class="map-section">
+          <app-destination-map
+            #destinationMap
+            [destinationName]="destinationControl.value || ''"
+            [destinationCoords]="selectedDestinationCoords"
+            [sourceCoords]="selectedSourceCoords"
+            [sourceName]="sourceLocationName"
+            [useCustomSource]="sourceMode === 'custom'"
+          >
+          </app-destination-map>
+        </div>
+
+        <div class="date-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="startPicker"
+              formControlName="start_date"
+              [min]="minDate"
+            />
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="startPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+            <mat-error
+              *ngIf="itineraryForm.get('start_date')?.hasError('required')"
+            >
+              Start date is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="endPicker"
+              formControlName="end_date"
+              [min]="minDate"
+            />
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="endPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+            <mat-error
+              *ngIf="itineraryForm.get('end_date')?.hasError('required')"
+            >
+              End date is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Budget ($)</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="budget"
+            placeholder="Enter your budget"
+          />
+          <mat-error *ngIf="itineraryForm.get('budget')?.hasError('required')">
+            Budget is required
+          </mat-error>
+          <mat-error *ngIf="itineraryForm.get('budget')?.hasError('min')">
+            Budget must be greater than 0
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Preferences (Optional)</mat-label>
+          <input
+            matInput
+            formControlName="preferences"
+            placeholder="e.g., sightseeing, adventure, relaxation"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Notes (Optional)</mat-label>
+          <textarea
+            matInput
+            formControlName="notes"
+            rows="3"
+            placeholder="Any additional notes"
+          ></textarea>
+        </mat-form-field>
+
+        <!-- Activities Section -->
+        <div class="activities-section">
+          <div class="section-header">
+            <h3>Activities (Optional - Leave blank for auto-generated)</h3>
+            <button
+              mat-raised-button
+              type="button"
+              color="accent"
+              (click)="addActivity()"
+            >
+              <mat-icon>add</mat-icon>
+              Add Activity
+            </button>
+          </div>
+
+          <div formArrayName="activities">
+            <mat-card
+              *ngFor="let activity of activities.controls; let i = index"
+              [formGroupName]="i"
+              class="activity-card"
+            >
+              <div class="activity-header">
+                <h4>Activity {{ i + 1 }}</h4>
+                <button
+                  mat-icon-button
+                  type="button"
+                  color="warn"
+                  (click)="removeActivity(i)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <div class="activity-fields">
+                <mat-form-field appearance="outline">
+                  <mat-label>Activity Name</mat-label>
+                  <input
+                    matInput
+                    formControlName="name"
+                    placeholder="e.g., Visit Eiffel Tower"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Time</mat-label>
+                  <input
+                    matInput
+                    formControlName="time"
+                    placeholder="e.g., 9:00 AM"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Duration</mat-label>
+                  <input
+                    matInput
+                    formControlName="duration"
+                    placeholder="e.g., 2 hours"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Estimated Cost ($)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="estimatedCost"
+                    placeholder="0"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Location</mat-label>
+                  <input
+                    matInput
+                    formControlName="location"
+                    placeholder="Specific location"
+                  />
+                </mat-form-field>
+              </div>
+            </mat-card>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          <mat-error>{{ errorMessage }}</mat-error>
+        </div>
+
+        <!-- Actions -->
+
+        <div class="actions">
+          <button
+            class="create-btn"
+            mat-raised-button
+            color="primary"
+            type="button"
+            [disabled]="loading || itineraryForm.invalid"
+            (click)="onSubmit()"
+          >
+            <!-- NORMAL STATE -->
+            <span class="btn-text" *ngIf="!loading">
+              <mat-icon>check</mat-icon>
+              Create Itinerary
+            </span>
+
+            <!-- LOADING STATE -->
+            <span class="loading-content" *ngIf="loading">
+              <!-- PHASE 1: SINGLE ICON SEQUENCE -->
+              <div class="single-icon-loader" *ngIf="loadingPhase === 1">
+                <img
+                  *ngIf="barrelIcons[currentIconIndex]"
+                  [src]="barrelIcons[currentIconIndex]"
+                  class="center-icon"
+                  alt="loading icon"
+                  draggable="false"
+                />
+              </div>
+
+              <!-- PHASE 2: RUNNER SVG -->
+              <div class="runner-track" *ngIf="loadingPhase === 2">
+                <img
+                  [src]="runnerFrames[currentRunnerFrame]"
+                  class="runner-icon"
+                  [style.transform]="'translateX(' + runnerX + 'px)'"
+                  alt="runner"
+                  draggable="false"
+                />
+              </div>
+            </span>
+          </button>
+
+          <button mat-button type="button" (click)="cancel()">Cancel</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,7 +1,7 @@
 /* ===== Landing Header ===== */
 
-html,
-body {
+:host {
+    display: block;
     overflow-x: hidden;
     max-width: 100%;
 }
@@ -114,7 +114,7 @@ body {
     right: 0;
     top: 0;
 
-    background: #191970;
+    background: linear-gradient(135deg, #191970 0%, #7a1f2b 100%);
 
     color: #ffffff;
     border: none;
@@ -129,9 +129,30 @@ body {
     align-items: center;
     justify-content: center;
 
+    box-shadow:
+        0 0px 0px rgba(37, 99, 235, 0.35),
+        0 4px 14px rgba(185, 28, 28, 0.25);
+
     transition:
         width 280ms cubic-bezier(0.4, 0, 0.2, 1),
-        background-color 200ms ease;
+        background-color 200ms ease,
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        filter 180ms ease;
+}
+
+.auth-animate-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 0px 10px rgba(37, 99, 235, 0.45),
+        0 8px 22px rgba(185, 28, 28, 0.35);
+}
+
+.auth-animate-btn:active {
+    transform: translateY(0);
+    filter: brightness(0.98);
 }
 
 .auth-animate-btn:disabled {
@@ -213,7 +234,7 @@ body {
     text-align: center;
 }
 .hero-cta {
-    background-color: #191970 !important; /* Midnight Blue */
+    background: linear-gradient(135deg, #191970 0%, #7a1f2b 100%) !important;
     color: #ffffff !important;
 
     margin-left: 140px;
@@ -223,22 +244,27 @@ body {
     letter-spacing: 0.02em;
 
     border-radius: 18px; /* professional, not playful */
-    box-shadow: 0 6px 18px rgba(25, 25, 112, 0.25);
+    box-shadow:
+        0 0px 0px rgba(37, 99, 235, 0.4),
+        0 6px 18px rgba(185, 28, 28, 0.35);
 
     transition:
-        transform 180ms ease,
-        box-shadow 180ms ease,
-        background-color 180ms ease;
+        transform 200ms ease,
+        box-shadow 200ms ease,
+        filter 200ms ease;
 }
 .hero-cta:hover {
-    background-color: #191970 !important; /* lighter midnight */
-    box-shadow: 0 10px 28px rgba(25, 25, 112, 0.32);
-    transform: translateY(-1px);
+    transform: translateY(-3px);
+    filter: brightness(1.12);
+
+    box-shadow:
+        0 0px 10px rgba(37, 99, 235, 0.55),
+        0 10px 26px rgba(185, 28, 28, 0.45);
 }
 
 .hero-cta:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 14px rgba(25, 25, 112, 0.22);
+    transform: translateY(-1px);
+    filter: brightness(1.02);
 }
 .hero-cta .mat-ripple-element {
     display: none;
@@ -1775,8 +1801,7 @@ body {
     }
 
     /* Prevent horizontal scroll */
-    html,
-    body {
+    :host {
         overflow-x: hidden;
     }
 
@@ -1867,65 +1892,6 @@ body {
 .footer-meta {
     font-size: 12px;
     color: rgba(200, 200, 212, 0.3);
-}
-.auth-animate-btn {
-    background: linear-gradient(135deg, #191970 0%, #7a1f2b 100%);
-    color: #ffffff;
-
-    box-shadow:
-        0 0px 0px rgba(37, 99, 235, 0.35),
-        0 4px 14px rgba(185, 28, 28, 0.25);
-
-    transition:
-        transform 180ms ease,
-        box-shadow 180ms ease,
-        filter 180ms ease;
-}
-
-/* Hover = premium lift */
-.auth-animate-btn:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.08);
-
-    box-shadow:
-        0 0px 10px rgba(37, 99, 235, 0.45),
-        0 8px 22px rgba(185, 28, 28, 0.35);
-}
-
-/* Active press */
-.auth-animate-btn:active {
-    transform: translateY(0);
-    filter: brightness(0.98);
-}
-.hero-cta {
-    background: linear-gradient(135deg, #191970 0%, #7a1f2b 100%) !important;
-
-    color: #ffffff !important;
-
-    box-shadow:
-        0 0px 0px rgba(37, 99, 235, 0.4),
-        0 6px 18px rgba(185, 28, 28, 0.35);
-
-    transition:
-        transform 200ms ease,
-        box-shadow 200ms ease,
-        filter 200ms ease;
-}
-
-/* Hover = brighter + confident */
-.hero-cta:hover {
-    transform: translateY(-3px);
-    filter: brightness(1.12);
-
-    box-shadow:
-        0 0px 10px rgba(37, 99, 235, 0.55),
-        0 10px 26px rgba(185, 28, 28, 0.45);
-}
-
-/* Click feedback */
-.hero-cta:active {
-    transform: translateY(-1px);
-    filter: brightness(1.02);
 }
 
 /* ===================================

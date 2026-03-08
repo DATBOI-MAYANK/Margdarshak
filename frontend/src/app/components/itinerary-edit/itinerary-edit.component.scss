@@ -227,3 +227,170 @@ mat-card-header {
     opacity: 0.4;
   }
 }
+
+/* =====================================================
+   Dark Glassmorphic Theme
+   ===================================================== */
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a0a1a 0%, #0f0c29 45%, #111827 100%);
+  color: rgba(226, 232, 240, 0.92);
+}
+
+:host::before,
+:host::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+  z-index: 0;
+}
+
+:host::before {
+  width: 420px;
+  height: 420px;
+  top: -140px;
+  right: -120px;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.2) 0%, transparent 70%);
+}
+
+:host::after {
+  width: 340px;
+  height: 340px;
+  left: -120px;
+  bottom: -120px;
+  background: radial-gradient(circle, rgba(118, 75, 162, 0.18) 0%, transparent 70%);
+}
+
+.edit-container {
+  position: relative;
+  z-index: 1;
+  padding: 36px 20px;
+}
+
+.edit-container mat-card {
+  background: rgba(15, 23, 42, 0.62) !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 20px !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 24px 60px rgba(2, 6, 23, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.edit-container mat-card-title,
+.edit-container h3,
+.edit-container .activity-header h4 {
+  color: #f8fafc;
+}
+
+.edit-container h3 {
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  margin-bottom: 18px;
+}
+
+.media-section,
+.activity-card {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.activity-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(2, 6, 23, 0.28);
+  }
+}
+
+.active-editors {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.15));
+  border: 1px solid rgba(110, 231, 183, 0.3);
+
+  .editors-label {
+    color: #a7f3d0;
+  }
+}
+
+.connection-status {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fda4af;
+  border: 1px solid rgba(244, 114, 182, 0.25);
+
+  &.connected {
+    background: rgba(16, 185, 129, 0.2);
+    color: #86efac;
+    border-color: rgba(110, 231, 183, 0.3);
+  }
+}
+
+.error-message {
+  background: rgba(127, 29, 29, 0.3);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.actions {
+  padding-top: 20px;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+
+  button[mat-raised-button][color="primary"] {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: #fff !important;
+  }
+
+  button[mat-raised-button][color="accent"] {
+    background: linear-gradient(135deg, #14b8a6, #22c55e) !important;
+    color: #fff !important;
+  }
+
+  button[mat-raised-button]:not([color]) {
+    background: rgba(51, 65, 85, 0.6) !important;
+    color: rgba(226, 232, 240, 0.9) !important;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+  }
+}
+
+/* Page-scoped Material field styling */
+.edit-container ::ng-deep {
+  .mat-mdc-text-field-wrapper {
+    background: rgba(30, 41, 59, 0.45) !important;
+    border-radius: 12px !important;
+  }
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: rgba(148, 163, 184, 0.35) !important;
+  }
+
+  .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+  .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+  .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: rgba(129, 140, 248, 0.92) !important;
+  }
+
+  .mat-mdc-floating-label,
+  .mdc-floating-label,
+  .mat-mdc-input-element,
+  textarea.mat-mdc-input-element,
+  .mat-mdc-select-value,
+  .mat-mdc-form-field-hint,
+  .mat-datepicker-toggle,
+  .mat-mdc-form-field-icon-suffix,
+  mat-icon {
+    color: rgba(226, 232, 240, 0.86) !important;
+  }
+
+  .mat-mdc-input-element::placeholder {
+    color: rgba(226, 232, 240, 0.55) !important;
+  }
+}

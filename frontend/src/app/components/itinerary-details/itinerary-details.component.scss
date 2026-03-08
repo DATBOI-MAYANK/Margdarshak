@@ -2907,3 +2907,71 @@ $glow-purple: rgba(118, 75, 162, 0.25);
         }
     }
 }
+
+/* =====================================================
+   Final Glass Consistency Overrides
+   ===================================================== */
+.page-wrapper {
+    .hero-section,
+    .tab-navigation {
+        background: rgba(15, 23, 42, 0.68);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+
+    .hero-section {
+        box-shadow: 0 20px 60px rgba(2, 6, 23, 0.45);
+    }
+
+    .tab-navigation .tab-btn.active {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+        color: #ffffff;
+        border: 1px solid rgba(165, 180, 252, 0.3);
+    }
+
+    .schedule-timeline .day-header-bar,
+    .weather-card,
+    .chart-card,
+    .rate-card {
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        box-shadow:
+            0 18px 45px rgba(2, 6, 23, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .schedule-timeline .activities-list,
+    .notes-section .notes-card,
+    .packing-section .category-card,
+    .currency-section .converter-card,
+    .currency-section .budget-card,
+    .media-gallery-section .gallery-card {
+        background: rgba(15, 23, 42, 0.55);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 18px 50px rgba(2, 6, 23, 0.35);
+    }
+
+    .media-gallery-section .gallery-card .card-header,
+    .notes-section .notes-card .card-header,
+    .packing-section .category-card .category-header,
+    .currency-section .budget-card .budget-header {
+        background: rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .currency-section .budget-row {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .currency-section .budget-row.highlight {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.18));
+    }
+
+    .hotel-filters,
+    .hotel-card .hotel-info .hotel-actions .photos-btn:hover {
+        border-color: rgba(148, 163, 184, 0.24);
+    }
+}

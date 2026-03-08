@@ -891,3 +891,85 @@ mat-form-field {
   .mdc-floating-label {
   color: rgba(186, 85, 211, 0.9) !important;
 }
+
+/* =====================================================
+   Dark Glass Consistency Polish
+   ===================================================== */
+:host::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 26, 0.7) 0%, rgba(15, 12, 41, 0.75) 45%, rgba(17, 24, 39, 0.78) 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+mat-card {
+  background: rgba(15, 23, 42, 0.64) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  box-shadow:
+    0 24px 62px rgba(2, 6, 23, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+h3 {
+  color: rgba(226, 232, 240, 0.9);
+  border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+.field-divider {
+  .divider-dot {
+    background: rgba(165, 180, 252, 0.35);
+  }
+
+  .divider-arrow {
+    color: rgba(165, 180, 252, 0.72);
+  }
+}
+
+.activities-section {
+  border-top-color: rgba(148, 163, 184, 0.22);
+}
+
+.activity-card {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+
+  &:hover {
+    border-color: rgba(165, 180, 252, 0.45) !important;
+    box-shadow: 0 16px 30px rgba(2, 6, 23, 0.32) !important;
+  }
+
+  .activity-header h4 {
+    color: rgba(191, 219, 254, 0.95);
+  }
+}
+
+.actions {
+  border-top-color: rgba(148, 163, 184, 0.22);
+
+  .create-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.35) !important;
+  }
+}
+
+mat-form-field {
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      background: rgba(30, 41, 59, 0.45) !important;
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(148, 163, 184, 0.34) !important;
+    }
+
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+      border-color: rgba(129, 140, 248, 0.9) !important;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef } from "@angular/core";
 import {
   FormBuilder,
   FormGroup,
@@ -21,6 +21,7 @@ import {
 import { DestinationMapComponent } from "../../shared/components/destination-map/destination-map.component";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 import { MAPBOX_TOKEN } from "../../config/mapbox.config";
+import { TransportOption, TripBudget } from '../../models/transport.model';
 
 @Component({
   selector: "app-itinerary-creation",
@@ -51,12 +52,18 @@ export class ItineraryCreationComponent implements OnInit, OnDestroy {
   selectedSourceCoords: [number, number] | null = null;
   private currentLocationCoords: [number, number] | null = null;
 
+  // Transport comparison
+  showTransportCompare = false;
+  selectedTransport: TransportOption | null = null;
+  tripBudget: TripBudget | null = null;
+
   constructor(
     private fb: FormBuilder,
     private itineraryService: ItineraryService,
     private cityService: CityService,
     private pageTitle: PageTitleService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +71,7 @@ export class ItineraryCreationComponent implements OnInit, OnDestroy {
       destination: this.destinationControl,
       start_date: ["", [Validators.required]],
       end_date: ["", [Validators.required]],
+      passengers: [1, [Validators.required, Validators.min(1)]],
       budget: [0, [Validators.required, Validators.min(0.01)]],
       preferences: [""],
       notes: [""],
@@ -138,9 +146,11 @@ export class ItineraryCreationComponent implements OnInit, OnDestroy {
           } catch (e) {
             this.sourceLocationName = 'Location detected';
           }
+          this.cdr.detectChanges();
         },
         () => {
           this.sourceLocationName = 'Could not detect location';
+          this.cdr.detectChanges();
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
@@ -227,6 +237,51 @@ export class ItineraryCreationComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  /* ── Transport comparison helpers ── */
+
+  get transportSource(): string {
+    if (this.sourceMode === 'custom' && this.sourceControl.value) {
+      return this.sourceControl.value;
+    }
+    return this.sourceLocationName || '';
+  }
+
+  get transportDestination(): string {
+    return this.destinationControl.value || '';
+  }
+
+  get transportDate(): string {
+    const d = this.itineraryForm?.get('start_date')?.value;
+    if (!d) return '';
+    const dt = new Date(d);
+    return dt.toISOString().split('T')[0];
+  }
+
+  get tripDays(): number {
+    const s = this.itineraryForm?.get('start_date')?.value;
+    const e = this.itineraryForm?.get('end_date')?.value;
+    if (!s || !e) return 1;
+    const diff = Math.ceil((new Date(e).getTime() - new Date(s).getTime()) / 86400000);
+    return diff > 0 ? diff : 1;
+  }
+
+  canShowTransportCompare(): boolean {
+    const hasSource = this.sourceMode === 'custom'
+      ? !!this.sourceControl.value
+      : !!this.sourceLocationName;
+    return !!(hasSource && this.destinationControl.value && this.itineraryForm.get('start_date')?.value);
+  }
+
+  onTransportSelected(opt: TransportOption): void {
+    this.selectedTransport = opt;
+  }
+
+  onBudgetGenerated(budget: TripBudget): void {
+    this.tripBudget = budget;
+    // Auto-fill the budget field with the total trip cost
+    this.itineraryForm.patchValue({ budget: budget.totalTrip });
   }
 
   get activities(): FormArray {

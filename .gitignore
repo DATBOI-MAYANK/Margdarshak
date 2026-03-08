@@ -2,13 +2,19 @@
 node_modules/
 package-lock.json
 
-# Environment
+# Environment (secrets)
 .env
 .env.local
 .env.*.local
+backend/.env
+frontend/.env
 
 # Generated Mapbox config (contains API key, created by scripts/set-env.js)
 frontend/src/app/config/mapbox.config.ts
+
+# Real environment files (use .example.ts as templates)
+frontend/src/environments/environment.ts
+frontend/src/environments/environment.prod.ts
 
 # Build output
 dist/
@@ -23,8 +29,7 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 
-# Duplicate/generated assets
-frontend/src/assets/
+# Angular cache
 frontend/.angular/
 
 # Windows copy artifacts

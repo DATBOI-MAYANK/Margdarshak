@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://smartitinery2-1.onrender.com/api',
-  mapboxToken: 'YOUR_MAPBOX_ACCESS_TOKEN_HERE'
+  apiUrl: 'http://localhost:3000/api',
+  geoapifyKey: 'YOUR_GEOAPIFY_KEY_HERE',
 };

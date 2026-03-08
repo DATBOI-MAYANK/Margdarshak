@@ -172,7 +172,7 @@ export class ItineraryController {
       cityName = mappedCity;
     }
     
-    const apiKey = process.env.GEOAPIFY_API_KEY || 'GEOAPIFY_KEY_REMOVED';
+    const apiKey = process.env.GEOAPIFY_API_KEY || '';
     
     // Get coordinates for the city
     let lat, lon;

@@ -209,8 +209,48 @@
           </mat-form-field>
         </div>
 
+        <!-- Passengers -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Budget ($)</mat-label>
+          <mat-label>Number of Passengers</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="passengers"
+            placeholder="1"
+            min="1"
+            max="20"
+          />
+          <mat-icon matSuffix>group</mat-icon>
+          <mat-error *ngIf="itineraryForm.get('passengers')?.hasError('required')">
+            Number of passengers is required
+          </mat-error>
+          <mat-error *ngIf="itineraryForm.get('passengers')?.hasError('min')">
+            At least 1 passenger is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- ═══ Transport Comparison Section ═══ -->
+        <div class="transport-section">
+          <div class="section-header transport-header">
+            <h3>
+              <mat-icon>compare_arrows</mat-icon>
+              Compare Travel Options
+            </h3>
+            <p class="section-hint">Compare bus, train &amp; flight fares. The best option auto-fills your budget.</p>
+          </div>
+
+          <app-transport-compare
+            [source]="transportSource"
+            [destination]="transportDestination"
+            [date]="transportDate"
+            [tripDays]="tripDays"
+            (transportSelected)="onTransportSelected($event)"
+            (budgetGenerated)="onBudgetGenerated($event)"
+          ></app-transport-compare>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Budget (₹)</mat-label>
           <input
             matInput
             type="number"

@@ -11,6 +11,7 @@ import uploadRoutes from './routes/upload.routes';
 import collaboratorRoutes from './routes/collaborator.routes';
 import messageRoutes from './routes/message.routes';
 import chatRoutes from './routes/chat.routes';
+import transportRoutes from './routes/transport.routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import pool from './config/database';
 import { socketService } from './services/socket.service';
@@ -94,6 +95,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/collaborators', collaboratorRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/transport', transportRoutes);
 
 // Error handling
 app.use(notFoundHandler);

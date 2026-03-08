@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, forkJoin } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { CityService } from './city.service';
+import { environment } from '../../environments/environment';
 
 export interface Hotel {
   name: string;
@@ -56,7 +57,7 @@ export interface GeoapifyResponse {
   providedIn: 'root'
 })
 export class HotelService {
-  private apiKey = 'GEOAPIFY_KEY_REMOVED';
+  private apiKey = environment.geoapifyKey;
   private apiUrl = 'https://api.geoapify.com/v2/places';
 
   constructor(

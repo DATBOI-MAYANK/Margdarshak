@@ -891,3 +891,38 @@ mat-form-field {
   .mdc-floating-label {
   color: rgba(186, 85, 211, 0.9) !important;
 }
+
+/* ════════════════════════════════════════════════════════
+   TRANSPORT COMPARISON SECTION
+   ════════════════════════════════════════════════════════ */
+.transport-section {
+  margin: 24px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(186, 85, 211, 0.2);
+  border-radius: 16px;
+}
+
+.transport-header {
+  margin-bottom: 16px;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 4px;
+
+    mat-icon {
+      color: rgba(186, 85, 211, 0.9);
+    }
+  }
+
+  .section-hint {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}

@@ -60,6 +60,7 @@ import { CollaborationChatComponent } from './components/messages/collaboration-
 import { ShareItineraryDialogComponent } from './shared/components/share-itinerary-dialog.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { DestinationMapComponent } from './shared/components/destination-map/destination-map.component';
+import { TransportCompareComponent } from './shared/components/transport-compare/transport-compare.component';
 
 @NgModule({
   declarations: [
@@ -117,7 +118,9 @@ import { DestinationMapComponent } from './shared/components/destination-map/des
     ShareItineraryDialogComponent,
     ProfileComponent,
     // Map Component
-    DestinationMapComponent
+    DestinationMapComponent,
+    // Transport Comparison
+    TransportCompareComponent
   ],
   providers: [
     {

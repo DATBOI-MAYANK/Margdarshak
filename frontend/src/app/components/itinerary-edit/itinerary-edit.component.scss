@@ -1,3 +1,10 @@
+:host {
+  display: block;
+  min-height: calc(100vh - 64px);
+  background: linear-gradient(135deg, #0b0d17 0%, #0d1020 100%);
+  padding: 24px;
+}
+
 .edit-container {
   padding: 20px;
   max-width: 900px;
@@ -25,12 +32,13 @@
 .media-section {
   margin: 30px 0;
   padding: 20px;
-  background: #f9f9f9;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
 
   h3 {
     margin: 0 0 20px 0;
-    color: #333;
+    color: #eef0f6;
   }
 }
 
@@ -102,7 +110,8 @@ mat-card-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  background: rgba(56, 239, 125, 0.1);
+  border: 1px solid rgba(56, 239, 125, 0.2);
   padding: 8px 16px;
   border-radius: 20px;
   margin-left: auto;
@@ -112,7 +121,7 @@ mat-card-header {
     align-items: center;
     gap: 5px;
     font-size: 13px;
-    color: #2e7d32;
+    color: #38ef7d;
     font-weight: 500;
 
     mat-icon {
@@ -137,7 +146,7 @@ mat-card-header {
       justify-content: center;
       font-size: 12px;
       font-weight: 600;
-      border: 2px solid white;
+      border: 2px solid #111425;
       margin-left: -8px;
       cursor: pointer;
       transition: transform 0.2s;
@@ -162,8 +171,8 @@ mat-card-header {
   border-radius: 15px;
   font-size: 12px;
   font-weight: 500;
-  background: #ffebee;
-  color: #c62828;
+  background: rgba(244, 67, 54, 0.15);
+  color: #ef5350;
 
   mat-icon {
     font-size: 16px;
@@ -172,8 +181,8 @@ mat-card-header {
   }
 
   &.connected {
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: rgba(56, 239, 125, 0.1);
+    color: #38ef7d;
   }
 }
 

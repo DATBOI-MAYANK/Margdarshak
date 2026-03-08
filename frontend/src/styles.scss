@@ -15,7 +15,8 @@ html, body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f5f5f5;
+  background-color: #0b0d17;
+  color: #eef0f6;
 }
 
 .container {
@@ -26,6 +27,85 @@ body {
 
 .mat-mdc-form-field {
   width: 100%;
+}
+
+// ========================================
+// DARK THEME ANGULAR MATERIAL OVERRIDES
+// ========================================
+
+// Form field backgrounds
+.mat-mdc-text-field-wrapper {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.mat-mdc-form-field-input-control {
+  color: #eef0f6 !important;
+}
+
+.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.mat-mdc-form-field-hint,
+.mat-mdc-form-field-error {
+  color: rgba(238, 240, 246, 0.7) !important;
+}
+
+.mat-mdc-floating-label,
+.mdc-floating-label {
+  color: rgba(238, 240, 246, 0.6) !important;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+// mat-select dropdown
+.mat-mdc-select-value {
+  color: #eef0f6 !important;
+}
+
+.mat-mdc-select-arrow {
+  color: rgba(238, 240, 246, 0.6) !important;
+}
+
+// Mat card dark theme
+.mat-mdc-card {
+  background: #111425 !important;
+  color: #eef0f6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mat-mdc-card-title,
+.mat-mdc-card-subtitle {
+  color: #eef0f6 !important;
+}
+
+// Checkbox dark theme
+.mdc-checkbox__background {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.mdc-form-field > label {
+  color: #eef0f6 !important;
+}
+
+// Dividers in dark
+.mat-divider {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+// Snackbar dark
+.mat-mdc-snack-bar-container {
+  background: #1a1d2e !important;
+  color: #eef0f6 !important;
+}
+
+// Progress bar
+.mat-mdc-progress-bar {
+  --mdc-linear-progress-track-color: rgba(255, 255, 255, 0.1);
 }
 
 // ========================================

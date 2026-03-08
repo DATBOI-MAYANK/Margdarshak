@@ -486,9 +486,9 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 2.5px;
-    color: rgba(165, 180, 252, 0.7);
-    background: rgba(102, 126, 234, 0.08);
-    border: 1px solid rgba(102, 126, 234, 0.15);
+    color: rgba(165, 180, 252, 0.9);
+    background: rgba(102, 126, 234, 0.12);
+    border: 1px solid rgba(102, 126, 234, 0.25);
     padding: 6px 18px;
     border-radius: 20px;
     margin-bottom: 20px;
@@ -506,7 +506,7 @@ body {
 .section-subtitle {
     font-size: 16px;
     line-height: 1.7;
-    color: rgba(200, 200, 212, 0.55);
+    color: rgba(210, 210, 225, 0.85);
     max-width: 540px;
     margin: 0 auto;
 }
@@ -757,7 +757,7 @@ body {
 .feature-card-dark .card-inner p {
     font-size: 13.5px;
     line-height: 1.65;
-    color: rgba(200, 200, 212, 0.5);
+    color: rgba(210, 210, 225, 0.8);
     margin: 0 0 16px;
     flex-grow: 1;
 }
@@ -771,29 +771,29 @@ body {
     letter-spacing: 1px;
     padding: 4px 12px;
     border-radius: 8px;
-    background: rgba(102, 126, 234, 0.1);
-    color: rgba(165, 180, 252, 0.7);
-    border: 1px solid rgba(102, 126, 234, 0.15);
+    background: rgba(102, 126, 234, 0.15);
+    color: rgba(165, 180, 252, 0.9);
+    border: 1px solid rgba(102, 126, 234, 0.25);
     width: fit-content;
     transition: all 0.3s ease;
 }
 
 .card-tag-teal {
-    background: rgba(20, 184, 166, 0.1);
-    color: rgba(94, 234, 212, 0.7);
-    border-color: rgba(20, 184, 166, 0.15);
+    background: rgba(20, 184, 166, 0.15);
+    color: rgba(94, 234, 212, 0.9);
+    border-color: rgba(20, 184, 166, 0.25);
 }
 
 .card-tag-amber {
-    background: rgba(245, 158, 11, 0.1);
-    color: rgba(252, 211, 77, 0.7);
-    border-color: rgba(245, 158, 11, 0.15);
+    background: rgba(245, 158, 11, 0.15);
+    color: rgba(252, 211, 77, 0.9);
+    border-color: rgba(245, 158, 11, 0.25);
 }
 
 .card-tag-rose {
-    background: rgba(244, 63, 94, 0.1);
-    color: rgba(253, 164, 175, 0.7);
-    border-color: rgba(244, 63, 94, 0.15);
+    background: rgba(244, 63, 94, 0.15);
+    color: rgba(253, 164, 175, 0.9);
+    border-color: rgba(244, 63, 94, 0.25);
 }
 
 .feature-card-dark:hover .card-tag {
@@ -1282,7 +1282,7 @@ body {
 
 .newsletter-desc {
     font-size: 13px;
-    color: rgba(200, 200, 212, 0.6);
+    color: rgba(200, 200, 212, 0.8);
     line-height: 1.6;
     margin-bottom: 16px;
 }
@@ -1313,7 +1313,7 @@ body {
 }
 
 .newsletter-input::placeholder {
-    color: rgba(200, 200, 212, 0.4);
+    color: rgba(200, 200, 212, 0.55);
 }
 
 .newsletter-btn {
@@ -1792,7 +1792,7 @@ body {
 
 .footer-col a {
     font-size: 14px;
-    color: rgba(200, 200, 212, 0.6);
+    color: rgba(200, 200, 212, 0.8);
     text-decoration: none;
     transition: all 0.25s ease;
     display: inline-flex;
@@ -1835,7 +1835,7 @@ body {
 
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     font-size: 13px;
-    color: rgba(200, 200, 212, 0.4);
+    color: rgba(200, 200, 212, 0.65);
 }
 
 .footer-bottom p {
@@ -1849,7 +1849,7 @@ body {
 }
 
 .footer-bottom-links a {
-    color: rgba(200, 200, 212, 0.5);
+    color: rgba(200, 200, 212, 0.75);
     text-decoration: none;
     transition: color 0.25s ease;
     font-size: 13px;
@@ -1860,13 +1860,13 @@ body {
 }
 
 .dot-sep {
-    color: rgba(200, 200, 212, 0.25);
+    color: rgba(200, 200, 212, 0.5);
     font-size: 12px;
 }
 
 .footer-meta {
     font-size: 12px;
-    color: rgba(200, 200, 212, 0.3);
+    color: rgba(200, 200, 212, 0.6);
 }
 .auth-animate-btn {
     background: linear-gradient(135deg, #191970 0%, #7a1f2b 100%);

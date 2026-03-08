@@ -12,7 +12,7 @@
 :host {
   --text-main-light: rgba(255, 255, 255, 0.92);
   --text-secondary-light: rgba(255, 255, 255, 0.75);
-  --text-muted-light: rgba(255, 255, 255, 0.55);
+  --text-muted-light: rgba(255, 255, 255, 0.72);
 
   --icon-accent-light: rgba(186, 85, 211, 0.9);
   --icon-neutral-light: rgba(255, 255, 255, 0.8);
@@ -852,7 +852,7 @@ mat-form-field {
   --mdc-outlined-text-field-placeholder-text-color: rgba(255, 255, 255, 0.55);
 
   /* hint / helper text */
-  --mdc-outlined-text-field-supporting-text-color: rgba(255, 255, 255, 0.55);
+  --mdc-outlined-text-field-supporting-text-color: rgba(255, 255, 255, 0.72);
 
   /* outline */
   --mdc-outlined-text-field-outline-color: rgba(255, 255, 255, 0.35);
